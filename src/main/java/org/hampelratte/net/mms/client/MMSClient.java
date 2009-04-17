@@ -138,7 +138,6 @@ public class MMSClient extends IoHandlerAdapter {
         for (IoHandler handler : additionalIoHandlers) {
             handler.sessionClosed(iosession);
         }
-        System.exit(1); // FIXME remove this, it's just for development
     }
 
     public void addMessageListener(MMSMessageListener listener) {
