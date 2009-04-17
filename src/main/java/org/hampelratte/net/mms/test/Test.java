@@ -51,26 +51,26 @@ public class Test implements MMSMessageListener {
         negotiator.setClient(client);
         
         // configure the negotiator
-        // connect info
+        // connect
         Connect connect = new Connect();
         connect.setPlayerInfo("NSPlayer/7.0.0.1956");
         connect.setGuid(UUID.randomUUID().toString());
         connect.setHost(host);
         negotiator.setConnect(connect);
-        // transport info
+        // connect funnel
         ConnectFunnel cf = new ConnectFunnel();
         cf.setIpAddress("192.168.0.1");
         cf.setProtocol("TCP");
         cf.setPort("1037");
         negotiator.setConnectFunnel(cf);
-        // request file
+        // open file
         OpenFile of = new OpenFile();
         of.setFileName(filepath + filename);
         negotiator.setOpenFile(of);
-        // request header
+        // read block
         ReadBlock rb = new ReadBlock();
         negotiator.setReadBlock(rb);
-        // stream mbr selector
+        // stream switch
         StreamSwitch ss = new StreamSwitch();
         ss.addStreamSwitchEntry(ss.new StreamSwitchEntry(0xFFFF, 1, 0));
         ss.addStreamSwitchEntry(ss.new StreamSwitchEntry(0xFFFF, 2, 0));
