@@ -23,7 +23,7 @@ import org.hampelratte.net.mms.messages.server.ReportStreamSwitch;
  * Negotiator class, which connects to the server and negotiates some connection
  * properties
  * 
- * TODO check for errors in prefix1
+ * TODO all messages with HRESULT should throw an exception, if HRESULT != 0
  */
 public class MMSNegotiator implements MMSMessageListener, MMSPacketListener {
 
