@@ -66,7 +66,6 @@ public class ReadBlock extends MMSRequest {
      *         client previously received from the server.
      */
     public void setOpenFileId(int openFileId) {
-        // TODO set this value during negotiation
         this.openFileId = openFileId;
     }
 
