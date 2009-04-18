@@ -22,7 +22,8 @@ import org.hampelratte.net.mms.data.MMSPacket;
 import org.hampelratte.net.mms.messages.MMSMessage;
 import org.hampelratte.net.mms.messages.client.CancelProtocol;
 import org.hampelratte.net.mms.messages.client.MMSRequest;
-import org.hampelratte.net.mms.messages.client.StartSendingFrom;
+import org.hampelratte.net.mms.messages.client.StartPlaying;
+import org.hampelratte.net.mms.messages.server.ReportOpenFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,10 +210,19 @@ public class MMSClient extends IoHandlerAdapter {
      * @param startPacket the packetNumber from which the streaming should start
      */
     public void startStreaming(long startPacket) {
-        StartSendingFrom ssf = new StartSendingFrom();
+        StartPlaying sp = new StartPlaying();
+        ReportOpenFile rof = (ReportOpenFile) session.getAttribute(ReportOpenFile.class);
+        sp.setOpenFileId(rof.getOpenFileId());
+        
+        /* this confuses me: we use the packet number to seek the start of streaming.
+         * in my opinion we should have to use setLocationId for packet numbers, but it
+         * only works correctly with setAsfOffset ?!? 
+         * maybe the sequence of the values is wrong in the spec */
+        sp.setPosition(Double.MAX_VALUE);
+        sp.setLocationId(0xFFFFFFFF);
         if(startPacket > 0) {
-            ssf.setStartPacket(startPacket);
+            sp.setAsfOffset(startPacket);
         }
-        sendRequest(ssf);
+        sendRequest(sp);
     }
 }
