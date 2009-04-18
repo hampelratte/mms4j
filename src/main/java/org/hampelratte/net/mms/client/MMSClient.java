@@ -44,6 +44,8 @@ public class MMSClient extends IoHandlerAdapter {
     private IoSession session;
     private MMSNegotiator negotiator;
     
+    private long lastUpdate = 0;
+    
     public MMSClient(String host, int port, MMSNegotiator negotiator) {
         this.host = host;
         this.port = port;
@@ -167,6 +169,10 @@ public class MMSClient extends IoHandlerAdapter {
     
     public double getSpeed() {
         if(session != null) {
+            if( (System.currentTimeMillis() - lastUpdate) > 1000) {
+                lastUpdate = System.currentTimeMillis();
+                session.updateThroughput(System.currentTimeMillis(), true);
+            }
             return session.getReadBytesThroughput() / 1024;
         }
         
