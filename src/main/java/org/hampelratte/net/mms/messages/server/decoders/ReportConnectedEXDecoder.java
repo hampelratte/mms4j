@@ -5,7 +5,6 @@ import java.nio.ByteOrder;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.hampelratte.net.mms.io.RemoteException;
-import org.hampelratte.net.mms.io.util.HRESULT;
 import org.hampelratte.net.mms.io.util.StringUtils;
 import org.hampelratte.net.mms.messages.server.MMSResponse;
 import org.hampelratte.net.mms.messages.server.ReportConnectedEX;
@@ -22,7 +21,7 @@ public class ReportConnectedEXDecoder extends MMSResponseDecoder {
         ReportConnectedEX rce = new ReportConnectedEX();
         rce.setHr(b.getInt());
         if(rce.getHr() != 0) {
-            throw new RemoteException(HRESULT.hrToHumanReadable(rce.getHr()));
+            throw new RemoteException(rce.getHr());
         }
         rce.setPlayIncarnation(b.getInt());
         rce.setMacToViewerProtocolRevision(b.getInt());

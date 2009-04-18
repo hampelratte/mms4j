@@ -3,7 +3,6 @@ package org.hampelratte.net.mms.messages.server.decoders;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.hampelratte.net.mms.io.RemoteException;
-import org.hampelratte.net.mms.io.util.HRESULT;
 import org.hampelratte.net.mms.messages.server.MMSResponse;
 import org.hampelratte.net.mms.messages.server.ReportOpenFile;
 
@@ -19,7 +18,7 @@ public class ReportOpenFileDecoder extends MMSResponseDecoder {
         ReportOpenFile rof = new ReportOpenFile();
         rof.setHr(b.getInt());
         if(rof.getHr() != 0) {
-            throw new RemoteException(HRESULT.hrToHumanReadable(rof.getHr()));
+            throw new RemoteException(rof.getHr());
         }
         rof.setPlayIncarnation(b.getInt());
         rof.setOpenFileId(b.getInt());
