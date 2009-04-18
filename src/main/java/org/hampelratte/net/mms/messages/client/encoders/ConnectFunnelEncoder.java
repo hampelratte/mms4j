@@ -34,7 +34,6 @@ public class ConnectFunnelEncoder extends MMSRequestEncoder {
         funnelName.append(cf.getProtocol());
         funnelName.append('\\');
         funnelName.append(cf.getPort());
-        // TODO maybe 16LE is wrong, because the buffer is LE already
         b.putString(funnelName, StringUtils.getEncoder("UTF-16LE"));
         
         // one UTF-16 NULL-byte

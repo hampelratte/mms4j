@@ -36,7 +36,6 @@ public class ConnectEncoder extends MMSRequestEncoder {
         subscriberName.append("}; Host: ");
         subscriberName.append(connect.getHost());
         
-        // TODO ist UTF-16LE ok? buffer ist schon auf LE eingestellt.
         // wenn der string jetzt als LE codiert wieder könnte LE x LE = BE
         // rauskommen
         b.putString(subscriberName, StringUtils.getEncoder("UTF-16LE")); 
