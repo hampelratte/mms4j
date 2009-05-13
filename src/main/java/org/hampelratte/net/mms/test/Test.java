@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.UUID;
 
+import org.apache.mina.core.future.CloseFuture;
+import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.hampelratte.net.mina.nio.MessageSentDumpFilter;
@@ -27,9 +30,9 @@ public class Test implements MMSMessageListener {
     public Test() throws FileNotFoundException {
         // zdf lang
         // mms://ondemand.msmedia.zdf.newmedia.nacamar.net/zdf/data/msmedia/zdf/09/02/090216_schnauzen16_nbs_vh.wmv
-        String host = "ondemand.msmedia.zdf.newmedia.nacamar.net";
-        String filepath = "zdf/data/msmedia/zdf/09/02/";
-        String filename = "090216_schnauzen16_nbs_vh.wmv";
+//        String host = "ondemand.msmedia.zdf.newmedia.nacamar.net";
+//        String filepath = "zdf/data/msmedia/zdf/09/02/";
+//        String filename = "090216_schnauzen16_nbs_vh.wmv";
         
         // zdf kurz
 //      String host = "c36000-o.w.core.cdn.streamfarm.net";
@@ -37,9 +40,9 @@ public class Test implements MMSMessageListener {
 //      String filename = "080316_wiibowling_nes_vh.wmv";
 
         // arte
-//        String host = "a764.v39759a.c39759.g.vm.akamaistream.net";
-//        String filepath = "7/764/39759/0160948f76f2a16a1692ad36588392de/artegeie.download.akamai.com/39759/mfile/arteprod/";
-//        String filename = "A7_SGT_ENC_04_032463-000-A_PG_HQ_DE.wmv";
+        String host = "a764.v39759a.c39759.g.vm.akamaistream.net";
+        String filepath = "7/764/39759/0160948f76f2a16a1692ad36588392de/artegeie.download.akamai.com/39759/mfile/arteprod/";
+        String filename = "A7_SGT_ENC_04_032463-000-A_PG_HQ_DE.wmv";
         
         // rtl
 //        String host = "217.118.170.35";
@@ -84,11 +87,23 @@ public class Test implements MMSMessageListener {
         client.addPacketListener(dumper);
 
         client.addAdditionalIoHandler(new IoHandlerAdapter() {
-           @Override
+            @Override
             public void sessionCreated(IoSession session) throws Exception {
                 super.sessionCreated(session);
                 session.getFilterChain().addLast("sentDump", new MessageSentDumpFilter(new File("/tmp/out.txt")));
-            } 
+            }
+
+            @Override
+            public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+                super.exceptionCaught(session, cause);
+                CloseFuture cf = session.close(true);
+                cf.addListener(new IoFutureListener<IoFuture>() {
+                    @Override
+                    public void operationComplete(IoFuture future) {
+                        System.exit(1);
+                    }
+                });
+            }
         });
         // finally start the download, the negotiator
         // will start automatically when the connection is
