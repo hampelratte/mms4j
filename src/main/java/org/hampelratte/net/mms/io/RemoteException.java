@@ -20,7 +20,7 @@ public class RemoteException extends Exception {
     
     @Override
     public String toString() {
-        return "Remote exception - HRESULT " + HRESULT.hrToHumanReadable(hr);
+        return "Remote exception - HRESULT 0x" + Integer.toHexString(getHr()) + " " + HRESULT.hrToHumanReadable(hr);
     }
 
 }
