@@ -14,6 +14,7 @@ public class HRESULT {
     
     static {
         hrToHuman.put(0, "The operation completed successfully.");
+        hrToHuman.put(0x80070002, "File not found");
     }
     
     /**
