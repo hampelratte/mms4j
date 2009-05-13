@@ -82,7 +82,7 @@ public class MMSClient extends IoHandlerAdapter {
         
         // cancel protocol doesn't work -> kill the connection
         if (session != null) {
-            CloseFuture future = session.close(false);
+            CloseFuture future = session.close(true);
             future.addListener(listener);
         }
         
