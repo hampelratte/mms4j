@@ -4,7 +4,7 @@
     <groupId>org.hampelratte</groupId>
     <artifactId>mms4j</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>MMS4J</name>
     <description>An implementation of the &quot;Microsoft Media Server&quot; protocol</description>
     <url>http://developer.berlios.de/projects/vch</url>
@@ -41,7 +41,7 @@
     <distributionManagement>
         <repository>
             <id>hampelratte</id>
-            <url>sftp://hampelratte.org/var/www/htdocs/hampelratte.org/www/maven</url>
+            <url>scp://hampelratte.org/var/www/htdocs/hampelratte.org/www/maven</url>
         </repository>
     </distributionManagement>
 
@@ -58,8 +58,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
         </plugins>
