@@ -177,8 +177,11 @@ public class ASFFilePropertiesObject extends ASFHeaderObject {
         sb.append(getFileId());
         sb.append(",size:");
         sb.append(getSize() / 1024 / 1024);
-        sb.append(" mb,creation date:");
-        sb.append(DateFormat.getDateTimeInstance().format(getCreationDate().getTime()));
+        sb.append(" mb");
+        if(getCreationDate() != null) {
+            sb.append(",creation date:");
+            sb.append(DateFormat.getDateTimeInstance().format(getCreationDate().getTime()));
+        }
         sb.append(",packet count:");
         sb.append(getDataPacketCount());
         sb.append(",play duration:");

@@ -35,7 +35,6 @@ public class ASFToplevelHeader extends ASFObject {
         for (int i = 0; i < nestedHeaders.length; i++) {
             try {
                 nestedHeaders[i] = (ASFHeaderObject) asfin.readASFObject();
-                System.err.println(nestedHeaders[i]);
             } catch (UnknownAsfObjectException e) {
                 logger.warn("Found a nested unknown ASF object", e);
             }
@@ -57,12 +56,14 @@ public class ASFToplevelHeader extends ASFObject {
         sb.append(getObjectCount());
         sb.append(']');
         
-        for (int i = 0; i < nestedHeaders.length; i++) {
-            if(nestedHeaders[i] != null) {
-                sb.append("\n  nested Header: ");
-                sb.append(nestedHeaders[i].toString());
-            } else {
-                sb.append("\n  unknown nested Header");
+        if(nestedHeaders != null) {
+            for (int i = 0; i < nestedHeaders.length; i++) {
+                if(nestedHeaders[i] != null) {
+                    sb.append("\n  nested Header: ");
+                    sb.append(nestedHeaders[i].toString());
+                } else {
+                    sb.append("\n  unknown nested Header");
+                }
             }
         }
         

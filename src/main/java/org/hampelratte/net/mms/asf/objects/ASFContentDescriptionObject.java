@@ -25,7 +25,7 @@ public class ASFContentDescriptionObject extends ASFHeaderObject {
         ByteArrayInputStream bin = new ByteArrayInputStream(data);
         ASFInputStream asfin = new ASFInputStream(bin);
 
-        // read the length of the strings. subtract the terminating NULL-byte
+        // read the length of the strings
         int titleLength = asfin.readLEShort();
         int authorLength = asfin.readLEShort();
         int copyrightLength = asfin.readLEShort();
