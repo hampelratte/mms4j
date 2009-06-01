@@ -34,18 +34,13 @@ public class ASFInputStream extends LittleEndianEnabledInputStream {
     }
     
     public GUID readGUID() throws IOException {
-        byte[] guidBytes = new byte[16];
-        for (int i = 0; i<guidBytes.length; i++) {
-            guidBytes[i] = (byte) in.read();
-        }
+        byte[] guidBytes = readData(16);
         return new GUID(guidBytes);
     }
     
     private byte[] readData(int count) throws IOException {
         byte[] data = new byte[count];
-        for (int i = 0; i < data.length; i++) {
-            data[i] = (byte) in.read();
-        }
+        in.read(data);
         return data;
     }
     
