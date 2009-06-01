@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.hampelratte.net.mms.asf.UnknownAsfObjectException;
 import org.hampelratte.net.mms.asf.io.ASFInputStream;
+import org.hampelratte.net.mms.io.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,7 @@ public class ASFExtendedContentDescriptionObject extends ASFHeaderObject {
                     contentDescriptors.add(new ContentDescriptor<byte[]>(name, byteValue));
                     break;
                 case 2:
-                    boolean boolValue = asfin.readBoolean();
+                    boolean boolValue = asfin.readLEInt() != 0;
                     contentDescriptors.add(new ContentDescriptor<Boolean>(name, boolValue));
                     break;
                 case 3:
@@ -64,7 +65,9 @@ public class ASFExtendedContentDescriptionObject extends ASFHeaderObject {
                     break;
                 default:
                     logger.warn("Unknown content descriptor type " + dataType + ". Skipping data.");
-                    asfin.skip(dataLength);
+                    byte[] d = new byte[dataLength];
+                    asfin.read(d);
+                    logger.debug("Unknown content descriptor data:\n  {}", StringUtils.toHeadHexString(d));
                 }
             } catch (Exception e) {
                 logger.warn("Couldn't read content descriptor", e);
