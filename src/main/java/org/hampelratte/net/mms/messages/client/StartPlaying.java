@@ -302,7 +302,7 @@ public class StartPlaying extends MMSRequest {
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
         sb.append("\n  --------\n  Position in sec: ");
-        sb.append(position);
+        sb.append(position == Double.MAX_VALUE ? "not set" : position);
         sb.append("\n  ASF offset (start packet): ");
         sb.append(asfOffset);
         return sb.toString();
