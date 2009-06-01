@@ -1,5 +1,6 @@
 package org.hampelratte.net.mms.client;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,23 +59,27 @@ public class MMSClient extends IoHandlerAdapter {
     }
 
     // TODO fehler abfangen wie z.b. ein connect timeout
-    public void connect() {
+    public void connect() throws Exception {
         ConnectFuture connectFuture = connector.connect(new InetSocketAddress(host, port));
         connectFuture.awaitUninterruptibly(CONNECT_TIMEOUT);
         session = connectFuture.getSession();
         
-        connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
-            public void operationComplete(ConnectFuture cf) {
-                // set throughput calculation interval
-                session.getConfig().setThroughputCalculationInterval(1);
-                
-                // set the first sequence number
-                session.setAttribute("mms.sequence", 0);
-                
-                // start the streaming negotiation
-                negotiator.start(session);
-            }
-        });
+        if(connectFuture != null) {
+            connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
+                public void operationComplete(ConnectFuture cf) {
+                    // set throughput calculation interval
+                    session.getConfig().setThroughputCalculationInterval(1);
+                    
+                    // set the first sequence number
+                    session.setAttribute("mms.sequence", 0);
+                    
+                    // start the streaming negotiation
+                    negotiator.start(session);
+                }
+            });
+        } else {
+            exceptionCaught(session, new IOException("Connect to host failed"));
+        }
     }
 
     public void disconnect(IoFutureListener<IoFuture> listener) {
