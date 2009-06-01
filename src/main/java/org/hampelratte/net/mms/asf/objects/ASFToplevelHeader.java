@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.hampelratte.net.mms.asf.UnknownAsfObjectException;
 import org.hampelratte.net.mms.asf.io.ASFInputStream;
+import org.hampelratte.net.mms.io.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ public class ASFToplevelHeader extends ASFObject {
     
     @Override
     public void setData(byte[] data) throws IOException, UnknownAsfObjectException, InstantiationException, IllegalAccessException {
+        logger.trace("ASF header:\n  {}", StringUtils.toHexString(data, 16));
         super.setData(data);
         
         ByteArrayInputStream bin = new ByteArrayInputStream(data);
