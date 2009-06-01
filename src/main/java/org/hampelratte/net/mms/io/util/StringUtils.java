@@ -6,6 +6,10 @@ import java.nio.charset.CharsetEncoder;
 
 public class StringUtils {
     public static String toHexString(byte[] bytes, int bytesPerRow) {
+        if(bytes == null) {
+            return "";
+        }
+        
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bytes.length; i+=bytesPerRow) {
             int length = bytes.length - i >= bytesPerRow ? bytesPerRow : bytes.length % bytesPerRow;
@@ -50,6 +54,23 @@ public class StringUtils {
         }
         return hex;
     }
+    
+    public static final int LOG_BYTE_DUMP_SIZE = 8 * 4;
+    
+    /**
+     * Creates a hexdump with a maximum length of {@link StringUtils#LOG_BYTE_DUMP_SIZE} bytes
+     * @param data
+     * @return hexdump as String
+     */
+    public static String toHeadHexString(byte[] data) {
+        int length = Math.min(data.length, LOG_BYTE_DUMP_SIZE);
+        byte[] head = new byte[length];
+        System.arraycopy(data, 0, head, 0, length);
+        
+        StringBuilder sb = new StringBuilder(toHexString(head, 8));
+        sb.append("\n  ...");
+        return sb.toString();
+    }   
     
     public static String toCharString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
