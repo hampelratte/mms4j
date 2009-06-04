@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.hampelratte.net.mms.asf.ASFObjectFactory;
-import org.hampelratte.net.mms.asf.UnknownAsfObjectException;
 import org.hampelratte.net.mms.asf.objects.ASFObject;
 import org.hampelratte.net.mms.io.LittleEndianEnabledInputStream;
 
@@ -16,7 +15,7 @@ public class ASFInputStream extends LittleEndianEnabledInputStream {
         super(in);
     }
 
-    public ASFObject readASFObject() throws IOException, UnknownAsfObjectException, InstantiationException, IllegalAccessException {
+    public ASFObject readASFObject() throws IOException, InstantiationException, IllegalAccessException {
         // read the guid
         GUID guid = readGUID();
         
@@ -27,7 +26,12 @@ public class ASFInputStream extends LittleEndianEnabledInputStream {
         asfo.setSize(readLELong());
         
         // read the data
-        byte[] data = readData((int)asfo.getSize() - 24);
+        byte[] data;
+        if(asfo.getSize() > 24) {
+            data = readData((int)asfo.getSize() - 24); // -24 = 16(GUID) + 8(Size)
+        } else {
+            data = new byte[0];
+        }
         asfo.setData(data);
         
         return asfo;
