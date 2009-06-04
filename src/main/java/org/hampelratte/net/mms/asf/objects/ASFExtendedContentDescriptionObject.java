@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hampelratte.net.mms.asf.UnknownAsfObjectException;
 import org.hampelratte.net.mms.asf.io.ASFInputStream;
 import org.hampelratte.net.mms.io.util.StringUtils;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ public class ASFExtendedContentDescriptionObject extends ASFHeaderObject {
     private List<ContentDescriptor<?>> contentDescriptors = new ArrayList<ContentDescriptor<?>>();
     
     @Override
-    public void setData(byte[] data) throws IOException, UnknownAsfObjectException, InstantiationException, IllegalAccessException {
+    public void setData(byte[] data) throws IOException, InstantiationException, IllegalAccessException {
         super.setData(data);
 
         ByteArrayInputStream bin = new ByteArrayInputStream(data);

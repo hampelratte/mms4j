@@ -3,7 +3,6 @@ package org.hampelratte.net.mms.asf.objects;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import org.hampelratte.net.mms.asf.UnknownAsfObjectException;
 import org.hampelratte.net.mms.asf.io.ASFInputStream;
 
 public class ASFContentDescriptionObject extends ASFHeaderObject {
@@ -19,7 +18,7 @@ public class ASFContentDescriptionObject extends ASFHeaderObject {
     private String rating;
 
     @Override
-    public void setData(byte[] data) throws IOException, UnknownAsfObjectException, InstantiationException, IllegalAccessException {
+    public void setData(byte[] data) throws IOException, InstantiationException, IllegalAccessException {
         super.setData(data);
 
         ByteArrayInputStream bin = new ByteArrayInputStream(data);

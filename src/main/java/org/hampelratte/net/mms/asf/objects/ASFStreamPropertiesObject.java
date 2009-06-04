@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hampelratte.net.mms.asf.UnknownAsfObjectException;
 import org.hampelratte.net.mms.asf.io.ASFInputStream;
 
 import unclealex.mms.GUID;
@@ -29,7 +28,7 @@ public class ASFStreamPropertiesObject extends ASFHeaderObject {
     private byte[] errorCorrectionData;
 
     @Override
-    public void setData(byte[] data) throws IOException, UnknownAsfObjectException, InstantiationException, IllegalAccessException {
+    public void setData(byte[] data) throws IOException, InstantiationException, IllegalAccessException {
         super.setData(data);
         
         ByteArrayInputStream bin = new ByteArrayInputStream(data);

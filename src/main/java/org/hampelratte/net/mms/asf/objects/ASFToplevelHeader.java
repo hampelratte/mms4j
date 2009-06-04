@@ -3,7 +3,6 @@ package org.hampelratte.net.mms.asf.objects;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import org.hampelratte.net.mms.asf.UnknownAsfObjectException;
 import org.hampelratte.net.mms.asf.io.ASFInputStream;
 import org.hampelratte.net.mms.io.util.StringUtils;
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ public class ASFToplevelHeader extends ASFObject {
     private long objectCount;
     
     @Override
-    public void setData(byte[] data) throws IOException, UnknownAsfObjectException, InstantiationException, IllegalAccessException {
+    public void setData(byte[] data) throws IOException, InstantiationException, IllegalAccessException {
         logger.trace("ASF header:\n  {}", StringUtils.toHexString(data, 16));
         super.setData(data);
         
@@ -35,11 +34,7 @@ public class ASFToplevelHeader extends ASFObject {
         // read the nested header objects
         nestedHeaders = new ASFHeaderObject[(int) objectCount];
         for (int i = 0; i < nestedHeaders.length; i++) {
-            try {
-                nestedHeaders[i] = (ASFHeaderObject) asfin.readASFObject();
-            } catch (UnknownAsfObjectException e) {
-                logger.warn("Found a nested unknown ASF object", e);
-            }
+            nestedHeaders[i] = (ASFHeaderObject) asfin.readASFObject();
         }
     }
 

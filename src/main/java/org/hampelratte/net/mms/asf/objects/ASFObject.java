@@ -2,8 +2,6 @@ package org.hampelratte.net.mms.asf.objects;
 
 import java.io.IOException;
 
-import org.hampelratte.net.mms.asf.UnknownAsfObjectException;
-
 import unclealex.mms.GUID;
 
 public abstract class ASFObject {
@@ -38,7 +36,7 @@ public abstract class ASFObject {
         return data;
     }
 
-    public void setData(byte[] data) throws IOException, UnknownAsfObjectException, InstantiationException, IllegalAccessException {
+    public void setData(byte[] data) throws IOException, InstantiationException, IllegalAccessException {
         this.data = data;
     }
     

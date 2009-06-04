@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Calendar;
 
-import org.hampelratte.net.mms.asf.UnknownAsfObjectException;
 import org.hampelratte.net.mms.asf.io.ASFInputStream;
 
 import unclealex.mms.GUID;
@@ -14,7 +13,7 @@ public class ASFFilePropertiesObject extends ASFHeaderObject {
 
     private GUID fileId;
 
-    private long size;
+    private long fileSize;
 
     private Calendar creationDate;
     
@@ -35,14 +34,14 @@ public class ASFFilePropertiesObject extends ASFHeaderObject {
     private long maxBitrate;
 
     @Override
-    public void setData(byte[] data) throws IOException, UnknownAsfObjectException, InstantiationException, IllegalAccessException {
+    public void setData(byte[] data) throws IOException, InstantiationException, IllegalAccessException {
         super.setData(data);
 
         ByteArrayInputStream bin = new ByteArrayInputStream(data);
         ASFInputStream asfin = new ASFInputStream(bin);
 
         fileId = asfin.readGUID();
-        size = asfin.readLELong();
+        fileSize = asfin.readLELong();
         
         creationDate = Calendar.getInstance();
         creationDate.setTimeInMillis(asfin.readLELong());
@@ -65,12 +64,12 @@ public class ASFFilePropertiesObject extends ASFHeaderObject {
         this.fileId = fileId;
     }
 
-    public long getSize() {
-        return size;
+    public long getFileSize() {
+        return fileSize;
     }
 
-    public void setSize(long size) {
-        this.size = size;
+    public void setFileSize(long size) {
+        this.fileSize = size;
     }
 
     public Calendar getCreationDate() {
@@ -175,8 +174,8 @@ public class ASFFilePropertiesObject extends ASFHeaderObject {
         StringBuilder sb = new StringBuilder(super.toString());
         sb.append(" [ID:");
         sb.append(getFileId());
-        sb.append(",size:");
-        sb.append(getSize() / 1024 / 1024);
+        sb.append(",fileSize:");
+        sb.append(getFileSize() / 1024 / 1024);
         sb.append(" mb");
         if(getCreationDate() != null) {
             sb.append(",creation date:");
@@ -194,9 +193,9 @@ public class ASFFilePropertiesObject extends ASFHeaderObject {
         sb.append(isSeekable());
         sb.append(",broadcast:");
         sb.append(isBroadcast());
-        sb.append(",min packet size:");
+        sb.append(",min packet fileSize:");
         sb.append(getMinDataPacketSize());
-        sb.append(",max packet size:");
+        sb.append(",max packet fileSize:");
         sb.append(getMaxDataPacketSize());
         sb.append(",max bitrate:");
         sb.append(getMaxBitrate());
