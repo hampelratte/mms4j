@@ -1,6 +1,7 @@
 package org.hampelratte.net.mms.test;
 
 import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import org.hampelratte.net.mms.client.listeners.MMSPacketListener;
 import org.hampelratte.net.mms.data.MMSHeaderPacket;
 import org.hampelratte.net.mms.data.MMSPacket;
 import org.hampelratte.net.mms.io.MMSFileDumper;
+import org.hampelratte.net.mms.io.util.StringUtils;
 import org.hampelratte.net.mms.messages.MMSMessage;
 import org.hampelratte.net.mms.messages.client.Connect;
 import org.hampelratte.net.mms.messages.client.ConnectFunnel;
@@ -39,10 +41,10 @@ public class Test implements MMSMessageListener, MMSPacketListener {
 
     public Test() throws FileNotFoundException {
         // zdf lang
-        // mms://ondemand.msmedia.zdf.newmedia.nacamar.net/zdf/data/msmedia/zdf/07/03/070313_pipeline_htc_vh.wmv
-         String host = "ondemand.msmedia.zdf.newmedia.nacamar.net";
-         String filepath = "zdf/data/msmedia/zdf/07/03/";
-         String filename = "070313_pipeline_htc_vh.wmv";
+        // mms://ondemand.msmedia.zdf.newmedia.nacamar.net/zdf/data/msmedia/zdf/09/05/090524_inetkollaps_nes_vh.wmv
+//         String host = "ondemand.msmedia.zdf.newmedia.nacamar.net";
+//         String filepath = "zdf/data/msmedia/zdf/09/05/";
+//         String filename = "090524_inetkollaps_nes_vh.wmv";
 
         // zdf kurz
         // mms://ondemand.msmedia.zdf.newmedia.nacamar.net/zdf/data/msmedia/3sat/09/05/090524_sendung2_neues_vh.wmv
@@ -61,7 +63,20 @@ public class Test implements MMSMessageListener, MMSPacketListener {
         // String filepath = "vod/57/";
         // String filename =
         // "RTL_achtunghartwich_080309_700k.wmv?ssid=a18561c909ba12eae66388c47059170f&cid=1205786160&rd=1&rnd=7387286";
-
+        
+        // ard
+        // mms://195.185.185.82/swr/msmedia/swr-fernsehen/2plusleif/2009/05/276748.m.wmv
+//      String host = "195.185.185.82";
+//      String filepath = "swr/msmedia/swr-fernsehen/2plusleif/2009/05/";
+//      String filename = "276748.m.wmv";
+      
+      // ard
+      //mms://tagesschau.wmod.llnwd.net/a3705/d1/2009/0406/TV-20090406-2034-5401.wm.hi.wmv
+        String host = "tagesschau.wmod.llnwd.net";
+        String filepath = "a3705/d1/2009/0406/";
+        String filename = "TV-20090406-2034-5401.wm.hi.wmv";
+        
+        
         MMSNegotiator negotiator = new MMSNegotiator();
         client = new MMSClient(host, 1755, negotiator);
         negotiator.setClient(client);
@@ -156,19 +171,18 @@ public class Test implements MMSMessageListener, MMSPacketListener {
             ByteArrayInputStream bin = new ByteArrayInputStream(hp.getData());
             ASFInputStream asfin = new ASFInputStream(bin);
 
-            ASFObject asfo = null;
-            int count = 0;
-            while( !(asfo instanceof ASFToplevelHeader) && count++ < 5) {
-                try {
-                    asfo = asfin.readASFObject();
-                } catch (Exception e) {
-                    logger.warn("Ignoring unknown ASF header object", e);
-                }   
-            }
-
-            if(asfo != null) {
-                ASFToplevelHeader asfHeader = (ASFToplevelHeader) asfo;
-                logger.debug("ASF header: {}", asfHeader);
+            try {
+                while(true) {
+                    ASFObject o = asfin.readASFObject();
+                    if(o instanceof ASFToplevelHeader) {
+                        logger.debug("ASF header: {}", o);
+                        break;
+                    }
+                }
+            } catch(EOFException e) {
+                logger.warn("No ASF header found in MMS header packet:\n  {}", StringUtils.toHexString(hp.getData(), 16));
+            } catch (Exception e) {
+                logger.warn("Couldn't read ASF objects", e);
             }
         }
     }
