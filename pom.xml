@@ -16,6 +16,11 @@
             <url>http://repo1.maven.org/maven2</url>
         </repository>
     </repositories>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+    
     
     <dependencies>
     	<dependency>
