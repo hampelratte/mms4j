@@ -1,7 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>org.hampelratte</groupId>
+	<parent>
+		<artifactId>master</artifactId>
+		<groupId>org.hampelratte</groupId>
+		<version>1.0.0</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
     <artifactId>mms4j</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
@@ -9,19 +13,10 @@
     <description>An implementation of the &quot;Microsoft Media Server&quot; protocol</description>
     <url>http://developer.berlios.de/projects/vch</url>
     
-    <repositories>
-        <repository>
-            <id>maven</id>
-            <name>central maven repository</name>
-            <url>http://repo1.maven.org/maven2</url>
-        </repository>
-    </repositories>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-    
-    
+        
     <dependencies>
     	<dependency>
     		<groupId>org.apache.mina</groupId>
@@ -44,24 +39,8 @@
     		<scope>runtime</scope>
     	</dependency>
     </dependencies>
-    
-    <developers>
-    	<developer>
-    		<id>hampelratte</id>
-    		<name>Henrik Niehaus</name>
-    		<email>hampelratte@users.berlios.de</email>
-    		<timezone>CET</timezone>
-    	</developer>
-    </developers>
 
     <build>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-external</artifactId>
-                <version>1.0-alpha-5</version>
-            </extension>
-        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -74,17 +53,4 @@
             </plugin>
         </plugins>
     </build>
-    
-    <distributionManagement>
-        <repository>
-            <id>hampelratte</id>
-            <name>JMP3Renamer Plugin Repository</name>
-            <url>http://www.hampelratte.org:8080/artifactory/hampelratte.org</url>
-        </repository>
-        <snapshotRepository>
-            <id>hampelratte</id>
-            <name>JMP3Renamer Plugin Repository</name>
-            <url>http://www.hampelratte.org:8080/artifactory/hampelratte.org</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>
