@@ -31,11 +31,6 @@ public class MMSPacketDecoder {
         byte flags = b.get();
         int length = b.getUnsignedShort();
         
-        ReportOpenFile rof = (ReportOpenFile) session.getAttribute(ReportOpenFile.class);
-        if(rof == null) {
-            throw new PacketSizeMissingException();
-        }
-        
         MMSPacket packet;
         if(packetId == MMSHeaderPacket.PACKET_ID) {
             packet = new MMSHeaderPacket(sequence, flags, length);
@@ -55,6 +50,10 @@ public class MMSPacketDecoder {
         
         // add padding for data packets
         if(packetId == MMSMediaPacket.PACKET_ID) {
+            ReportOpenFile rof = (ReportOpenFile) session.getAttribute(ReportOpenFile.class);
+            if(rof == null) {
+                throw new PacketSizeMissingException();
+            }
             int padding = (int) (rof.getFilePacketSize() - (length - 8));
             MMSMediaPacket mmp = (MMSMediaPacket) packet;
             mmp.addPadding(padding);
