@@ -35,9 +35,6 @@ public class ConnectEncoder extends MMSRequestEncoder {
         subscriberName.append(connect.getGuid());
         subscriberName.append("}; Host: ");
         subscriberName.append(connect.getHost());
-        
-        // wenn der string jetzt als LE codiert wieder könnte LE x LE = BE
-        // rauskommen
         b.putString(subscriberName, StringUtils.getEncoder("UTF-16LE")); 
         
         // one UTF-16 NULL-byte
