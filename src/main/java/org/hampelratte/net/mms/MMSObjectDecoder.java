@@ -46,7 +46,7 @@ public class MMSObjectDecoder extends CumulativeProtocolDecoder {
                     // parse the header
                     TcpMessageHeader header = decodeHeader(b);
                     
-                    // check, if have received the complete message
+                    // check, if we have received the complete message
                     if (!messageComplete(b, header)) {
                         // message not yet complete
                         logger.trace("Wating for more message body data");
