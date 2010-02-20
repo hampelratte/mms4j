@@ -36,6 +36,9 @@ import org.slf4j.LoggerFactory;
 public class Test implements MMSMessageListener, MMSPacketListener {
 
     private static transient Logger logger = LoggerFactory.getLogger(Test.class);
+    
+    private int current = 0;
+    private Object[] ringbuffer = new Object[10];
 
     private MMSClient client;
 
@@ -53,10 +56,10 @@ public class Test implements MMSMessageListener, MMSPacketListener {
 //         String filename = "090524_sendung2_neues_vh.wmv";
 
         // arte
-        // mms://a1091.v397591.c39759.g.vm.akamaistream.net/7/1091/39759/0b48fbf5073e3b715dad199ef8df723d/artegeie.download.akamai.com/39759/mfile/arteprod/A7_SGT_ENC_04_039360-000-A_PG_HQ_DE.wmv
-//        String host = "a311.v397595.c39759.g.vm.akamaistream.net";
-//        String filepath = "7/1091/39759/0b48fbf5073e3b715dad199ef8df723d/artegeie.download.akamai.com/39759/mfile/arteprod/";
-//        String filename = "A7_SGT_ENC_04_039360-000-A_PG_HQ_DE.wmv";
+        // mms://artestras.wmod.llnwd.net/a3903/o35/geo/arte7/default/arteprod/A7_SGT_ENC_04_037611-003-A_PG_HQ_DE.wmv?e=1259322509&h=dfb417aa8d7e3271e0304f2ab46f07a2
+        String host = "artestras.wmod.llnwd.net";
+        String filepath = "a3903/o35/geo/arte7/default/arteprod";
+        String filename = "/A7_SGT_ENC_04_037611-003-A_PG_HQ_DE.wmv?e=1259448085&h=8caa0e73d05d751e85f4eb76c33298b5";
 
         // rtl
         // String host = "217.118.170.35";
@@ -72,9 +75,9 @@ public class Test implements MMSMessageListener, MMSPacketListener {
       
       // ard
       //mms://tagesschau.wmod.llnwd.net/a3705/d1/2009/0406/TV-20090406-2034-5401.wm.hi.wmv
-        String host = "tagesschau.wmod.llnwd.net";
-        String filepath = "a3705/d1/2009/0406/";
-        String filename = "TV-20090406-2034-5401.wm.hi.wmv";
+//        String host = "tagesschau.wmod.llnwd.net";
+//        String filepath = "a3705/d1/2009/0406/";
+//        String filename = "TV-20090406-2034-5401.wm.hi.wmv";
         
         
         MMSNegotiator negotiator = new MMSNegotiator();
@@ -123,8 +126,21 @@ public class Test implements MMSMessageListener, MMSPacketListener {
             }
 
             @Override
+            public void messageReceived(IoSession session, Object message) throws Exception {
+                ringbuffer[current++] = message;
+                current = current % ringbuffer.length;
+            }
+            
+            @Override
             public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-                super.exceptionCaught(session, cause);
+                logger.error("Exception caught:", cause);
+                current++;
+                for (int i = 0; i < ringbuffer.length; i++) {
+                    Object message = ringbuffer[current];
+                    logger.info("{} : {}", i, message);
+                    current = current++ % ringbuffer.length;
+                }
+                
                 CloseFuture cf = session.close(true);
                 cf.addListener(new IoFutureListener<IoFuture>() {
                     @Override
