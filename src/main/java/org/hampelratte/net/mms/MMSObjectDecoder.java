@@ -28,13 +28,13 @@ public class MMSObjectDecoder extends CumulativeProtocolDecoder {
 
             int position = b.position();
 
-            // read the first 8 byte
+            // read the first 8 bytes
             if (b.remaining() < 8) {
                 // not enough data yet
                 return false;
             } else {
                 b.order(ByteOrder.LITTLE_ENDIAN);
-                if (b.getInt(4) == 0xb00bface) { // this is a command
+                if (b.getInt(position + 4) == 0xb00bface) { // this is a command
                     logger.trace("Decoding MMS message");
                     b.position(position); // reset buffer position to beginning
                     if (!headerComplete(b)) {
@@ -67,11 +67,10 @@ public class MMSObjectDecoder extends CumulativeProtocolDecoder {
                     decoder.setHeader(header);
                     decoder.decode(session, b, out);
                 } else { // this is a data packet
-                    logger.trace("Decoding data packet");
-                    b.skip(4); // sequence
-                    b.skip(1); // packetId
-                    b.skip(1); // flags
-                    int length = b.getUnsignedShort();
+                    b.skip(4); // locationId
+                    b.skip(1); // playIncarnation
+                    b.skip(1); // AFFLags
+                    int length = b.getUnsignedShort(); // PacketSize
 
                     b.position(position);
                     // packet not yet complete
