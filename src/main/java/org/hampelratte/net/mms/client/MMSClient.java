@@ -47,10 +47,14 @@ public class MMSClient extends IoHandlerAdapter {
     
     private long lastUpdate = 0;
     
+    private long packetsReceived = 0;
+    private long packetsreceivedAtLastLog = 0;
+    
     public MMSClient(String host, int port, MMSNegotiator negotiator) {
         this.host = host;
         this.port = port;
         connector = new NioSocketConnector();
+        //connector.getFilterChain().addFirst("logger", new RawInputStreamDumpFilter());
         connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ClientProtocolCodecFactory()));
         connector.setHandler(this);
         this.negotiator = negotiator;
@@ -115,7 +119,10 @@ public class MMSClient extends IoHandlerAdapter {
             logger.debug("<--IN-- " + mmso.toString());
             fireMessageReceived(mmso);
         } else {
-            logger.trace("<--IN-- " + mmso.toString());
+            if( (++packetsReceived - packetsreceivedAtLastLog) >= 100) {
+                packetsreceivedAtLastLog = packetsReceived;
+                logger.debug("{} data packets received", packetsReceived);
+            }
             firePacketReceived(mmso);
         }
     }
