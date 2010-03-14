@@ -26,16 +26,16 @@ public class MMSPacketDecoder {
     public void decode(IoSession session, IoBuffer b, ProtocolDecoderOutput out) throws Exception {
         int position = b.position();
         
-        long sequence = b.getUnsignedInt();
-        byte packetId = b.get();
-        byte flags = b.get();
+        long locationId = b.getUnsignedInt();
+        byte playIncarnation = b.get();
+        byte afFlags = b.get();
         int length = b.getUnsignedShort();
         
         MMSPacket packet;
-        if(packetId == MMSHeaderPacket.PACKET_ID) {
-            packet = new MMSHeaderPacket(sequence, flags, length);
-        } else if(packetId == MMSMediaPacket.PACKET_ID) {
-            packet = new MMSMediaPacket(sequence, flags, length);
+        if(playIncarnation == MMSHeaderPacket.PACKET_ID) {
+            packet = new MMSHeaderPacket(locationId, afFlags, length);
+        } else if(playIncarnation == MMSMediaPacket.PACKET_ID) {
+            packet = new MMSMediaPacket(locationId, afFlags, length);
         } else {
             byte[] header = new byte[8];
             b.position(position);
@@ -49,7 +49,7 @@ public class MMSPacketDecoder {
         packet.setData(data);
         
         // add padding for data packets
-        if(packetId == MMSMediaPacket.PACKET_ID) {
+        if(playIncarnation == MMSMediaPacket.PACKET_ID) {
             ReportOpenFile rof = (ReportOpenFile) session.getAttribute(ReportOpenFile.class);
             if(rof == null) {
                 throw new PacketSizeMissingException();
