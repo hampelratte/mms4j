@@ -45,7 +45,7 @@ public class StringUtils {
      * Converts one byte to its hex representation with leading zeros.
      * E.g. 255 -> FF
      * @param b
-     * @return
+     * @return the hex representation of the <code>b</code>
      */
     public static String toHexString(int b) {
         String hex = Integer.toHexString(b & 0xFF);

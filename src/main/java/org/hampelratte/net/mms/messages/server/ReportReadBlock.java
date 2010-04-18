@@ -1,6 +1,7 @@
 package org.hampelratte.net.mms.messages.server;
 
 import org.hampelratte.net.mms.io.util.HRESULT;
+import org.hampelratte.net.mms.messages.client.ReadBlock;
 
 /**
  * The ReportReadBlock message is sent by the server in response

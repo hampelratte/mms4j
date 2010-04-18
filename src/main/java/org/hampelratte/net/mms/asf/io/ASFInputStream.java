@@ -51,7 +51,7 @@ public class ASFInputStream extends LittleEndianEnabledInputStream {
     /**
      * Reads a NULL terminated UTF-16LE string
      * @param size size in bytes including the NULL byte
-     * @return
+     * @return the String without the the terminating NULL byte
      * @throws IOException
      */
     public String readUTF16LE(int size) throws IOException {

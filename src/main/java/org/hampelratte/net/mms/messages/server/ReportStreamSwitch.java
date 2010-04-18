@@ -1,5 +1,7 @@
 package org.hampelratte.net.mms.messages.server;
 
+import org.hampelratte.net.mms.messages.client.StreamSwitch;
+
 
 /**
  * The ReportStreamSwitch message is used by the server to

@@ -1,6 +1,7 @@
 package org.hampelratte.net.mms.messages.server;
 
 import org.hampelratte.net.mms.io.util.HRESULT;
+import org.hampelratte.net.mms.messages.client.ConnectFunnel;
 
 
 /**

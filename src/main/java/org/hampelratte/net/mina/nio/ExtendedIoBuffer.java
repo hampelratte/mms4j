@@ -46,7 +46,7 @@ public class ExtendedIoBuffer extends IoBufferWrapper {
      * Writes the specified byte (the low eight bits of the argument 
      * <code>b</code>) to the buffer.
      * @param   b   the <code>byte</code> to be written.
-     * @return
+     * @return this buffer for method chaining
      */
     public IoBuffer putByte(int b) {
         byte _byte = (byte) (b & 0xFF);
