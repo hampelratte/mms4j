@@ -65,10 +65,10 @@ public class MMSClient extends IoHandlerAdapter {
     // TODO fehler abfangen wie z.b. ein connect timeout
     public void connect() throws Exception {
         ConnectFuture connectFuture = connector.connect(new InetSocketAddress(host, port));
-        connectFuture.awaitUninterruptibly(CONNECT_TIMEOUT);
-        session = connectFuture.getSession();
         
         if(connectFuture != null) {
+            connectFuture.awaitUninterruptibly(CONNECT_TIMEOUT);
+            session = connectFuture.getSession();
             connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
                 public void operationComplete(ConnectFuture cf) {
                     // set throughput calculation interval
