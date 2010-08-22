@@ -1,4 +1,4 @@
-package org.hampelratte.net.mms.test;
+package org.hampelratte.net.mms;
 
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
