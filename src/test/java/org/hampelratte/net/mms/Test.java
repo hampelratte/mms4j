@@ -57,9 +57,9 @@ public class Test implements MMSMessageListener, MMSPacketListener {
 
         // arte
         // mms://artestras.wmod.llnwd.net/a3903/o35/geo/arte7/default/arteprod/A7_SGT_ENC_04_037611-003-A_PG_HQ_DE.wmv?e=1259322509&h=dfb417aa8d7e3271e0304f2ab46f07a2
-        String host = "artestras.wmod.llnwd.net";
-        String filepath = "a3903/o35/geo/arte7/default/arteprod";
-        String filename = "/A7_SGT_ENC_04_037611-003-A_PG_HQ_DE.wmv?e=1259448085&h=8caa0e73d05d751e85f4eb76c33298b5";
+//        String host = "artestras.wmod.llnwd.net";
+//        String filepath = "a3903/o35/geo/arte7/default/arteprod";
+//        String filename = "/A7_SGT_ENC_04_037611-003-A_PG_HQ_DE.wmv?e=1259448085&h=8caa0e73d05d751e85f4eb76c33298b5";
 
         // rtl
         // String host = "217.118.170.35";
@@ -74,10 +74,10 @@ public class Test implements MMSMessageListener, MMSPacketListener {
 //      String filename = "276748.m.wmv";
       
       // ard
-      //mms://tagesschau.wmod.llnwd.net/a3705/d1/2009/0406/TV-20090406-2034-5401.wm.hi.wmv
-//        String host = "tagesschau.wmod.llnwd.net";
-//        String filepath = "a3705/d1/2009/0406/";
-//        String filename = "TV-20090406-2034-5401.wm.hi.wmv";
+      //mms://tagesschau.wmod.llnwd.net/a3705/d1/2010/0822/TV-20100822-1211-5001.wm.hi.wmv
+        String host = "tagesschau.wmod.llnwd.net";
+        String filepath = "a3705/d1/2010/0822/";
+        String filename = "TV-20100822-1211-5001.wm.hi.wmv";
         
         
         MMSNegotiator negotiator = new MMSNegotiator();

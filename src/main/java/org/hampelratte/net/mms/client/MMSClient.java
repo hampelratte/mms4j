@@ -62,7 +62,6 @@ public class MMSClient extends IoHandlerAdapter {
         this.addPacketListener(negotiator);
     }
 
-    // TODO fehler abfangen wie z.b. ein connect timeout
     public void connect() throws Exception {
         ConnectFuture connectFuture = connector.connect(new InetSocketAddress(host, port));
         
@@ -71,14 +70,22 @@ public class MMSClient extends IoHandlerAdapter {
             session = connectFuture.getSession();
             connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
                 public void operationComplete(ConnectFuture cf) {
-                    // set throughput calculation interval
-                    session.getConfig().setThroughputCalculationInterval(1);
-                    
-                    // set the first sequence number
-                    session.setAttribute("mms.sequence", 0);
-                    
-                    // start the streaming negotiation
-                    negotiator.start(session);
+                    if(cf.isConnected()) {
+                        // set throughput calculation interval
+                        session.getConfig().setThroughputCalculationInterval(1);
+                        
+                        // set the first sequence number
+                        session.setAttribute("mms.sequence", 0);
+                        
+                        // start the streaming negotiation
+                        negotiator.start(session);
+                    } else {
+                        try {
+                            exceptionCaught(session, cf.getException());
+                        } catch (Exception e) {
+                            logger.error("Couldn't propagate exception", e);
+                        }
+                    }
                 }
             });
         } else {
