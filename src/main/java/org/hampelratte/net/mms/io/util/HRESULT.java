@@ -16,6 +16,7 @@ public class HRESULT {
         hrToHuman.put(0, "The operation completed successfully.");
         hrToHuman.put(0x80070002, "File not found");
         hrToHuman.put(0x80070057, "Invalid argument");
+        hrToHuman.put(0xc00d157f, "Playlist parser not available");
     }
     
     /**
