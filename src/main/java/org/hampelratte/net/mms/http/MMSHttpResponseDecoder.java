@@ -11,10 +11,10 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
-import org.hampelratte.net.mms.MMSObjectDecoder;
 import org.hampelratte.net.mms.data.MMSHeaderPacket;
 import org.hampelratte.net.mms.data.MMSMediaPacket;
 import org.hampelratte.net.mms.io.util.StringUtils;
+import org.hampelratte.net.mms.messages.server.ReportEndOfStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,17 +27,20 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
 
     private static transient Logger logger = LoggerFactory.getLogger(MMSHttpResponseDecoder.class);
 
-    private MMSObjectDecoder mmsDecoder = new MMSObjectDecoder();
-
     /**
      * This is the state of the connection. If streaming is set to true, we expected only $H, $D etc. packages. We do not have to decode the http part. This is
      * only necessary for the first few loops of the decoding.
      */
     private boolean streaming = false;
-    int count = 0;
+    private boolean endOfStream = false;
 
     @Override
     protected boolean doDecode(IoSession session, IoBuffer b, ProtocolDecoderOutput out) throws Exception {
+        if (endOfStream) {
+            b.skip(b.remaining());
+            return true;
+        }
+
         logger.trace("Buffer size: {}\n{}", b.remaining(), StringUtils.toHexString(b));
         b.mark();
 
@@ -173,7 +176,6 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
                 // read in the data
                 byte[] buf = new byte[mmsPacketLength - 8];
                 b.get(buf);
-                logger.debug("Sequence: {}", locationId);
                 MMSMediaPacket packet = new MMSMediaPacket(locationId, afflags, mmsPacketLength);
                 packet.setData(buf);
                 int padding = 8948 - packet.getData().length;
@@ -181,10 +183,12 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
                     packet.addPadding(padding);
                 }
                 out.write(packet);
-
-                // if (count++ == 10) {
-                // System.exit(0);
-                // }
+            } else if (fh.getPacketId() == 'E') {
+                out.write(new ReportEndOfStream());
+                endOfStream = true;
+                break;
+            } else {
+                // TODO consume other packets like $C, $M etc.
             }
         }
 
