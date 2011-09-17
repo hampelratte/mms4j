@@ -1,6 +1,7 @@
 package org.hampelratte.net.mms.client;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,64 +31,73 @@ import org.slf4j.LoggerFactory;
 
 public class MMSClient extends IoHandlerAdapter {
     private static transient Logger logger = LoggerFactory.getLogger(MMSClient.class);
-    
-    /** Connect timeout in millisecods */ 
+
+    /** Connect timeout in millisecods */
     public static int CONNECT_TIMEOUT = 30000;
 
     private List<MMSMessageListener> messageListeners = new ArrayList<MMSMessageListener>();
     private List<MMSPacketListener> packetListeners = new ArrayList<MMSPacketListener>();
-    
+
     private List<IoHandler> additionalIoHandlers = new ArrayList<IoHandler>();
-    
+
     private String host;
     private int port;
     private SocketConnector connector;
     private IoSession session;
     private MMSNegotiator negotiator;
-    
+
     private long lastUpdate = 0;
-    
+
     private long packetsReceived = 0;
     private long packetsreceivedAtLastLog = 0;
-    
+
     public MMSClient(String host, int port, MMSNegotiator negotiator) {
         this.host = host;
         this.port = port;
-        connector = new NioSocketConnector();
-        //connector.getFilterChain().addFirst("logger", new RawInputStreamDumpFilter());
-        connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ClientProtocolCodecFactory()));
-        connector.setHandler(this);
         this.negotiator = negotiator;
+        connector = new NioSocketConnector();
+        // connector.getFilterChain().addFirst("logger", new RawInputStreamDumpFilter());
+        connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ClientMmsProtocolCodecFactory()));
+        connector.setHandler(this);
         this.addMessageListener(negotiator);
         this.addPacketListener(negotiator);
     }
 
     public void connect() throws Exception {
         ConnectFuture connectFuture = connector.connect(new InetSocketAddress(host, port));
-        
-        if(connectFuture != null) {
-            connectFuture.awaitUninterruptibly(CONNECT_TIMEOUT);
-            session = connectFuture.getSession();
-            connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
-                public void operationComplete(ConnectFuture cf) {
-                    if(cf.isConnected()) {
-                        // set throughput calculation interval
-                        session.getConfig().setThroughputCalculationInterval(1);
-                        
-                        // set the first sequence number
-                        session.setAttribute("mms.sequence", 0);
-                        
-                        // start the streaming negotiation
-                        negotiator.start(session);
-                    } else {
-                        try {
-                            exceptionCaught(session, cf.getException());
-                        } catch (Exception e) {
-                            logger.error("Couldn't propagate exception", e);
+
+        if (connectFuture != null) {
+            try {
+                connectFuture.awaitUninterruptibly(CONNECT_TIMEOUT);
+                session = connectFuture.getSession();
+                connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
+                    @Override
+                    public void operationComplete(ConnectFuture cf) {
+                        if (cf.isConnected()) {
+                            // set throughput calculation interval
+                            session.getConfig().setThroughputCalculationInterval(1);
+
+                            // set the first sequence number
+                            session.setAttribute("mms.sequence", 0);
+
+                            // start the streaming negotiation
+                            negotiator.start(session);
+                        } else {
+                            try {
+                                exceptionCaught(session, cf.getException());
+                            } catch (Exception e) {
+                                logger.error("Couldn't propagate exception", e);
+                            }
                         }
                     }
+                });
+            } catch (RuntimeException e) {
+                if (e.getCause() != null) {
+                    exceptionCaught(session, e.getCause());
+                } else {
+                    exceptionCaught(session, e);
                 }
-            });
+            }
         } else {
             exceptionCaught(session, new IOException("Connect to host failed"));
         }
@@ -95,18 +105,18 @@ public class MMSClient extends IoHandlerAdapter {
 
     public void disconnect(IoFutureListener<IoFuture> listener) {
         sendRequest(new CancelProtocol());
-        
+
         // cancel protocol doesn't work -> kill the connection
         if (session != null) {
             CloseFuture future = session.close(true);
             future.addListener(listener);
         }
-        
-        if(connector != null) {
+
+        if (connector != null) {
             connector.dispose();
         }
     }
-    
+
     public void sendRequest(MMSRequest request) {
         if (session == null) {
             throw new RuntimeException("Not connected");
@@ -116,17 +126,18 @@ public class MMSClient extends IoHandlerAdapter {
         }
     }
 
+    @Override
     public void messageReceived(IoSession session, Object message) throws Exception {
         for (IoHandler handler : additionalIoHandlers) {
             handler.messageReceived(session, message);
         }
-        
+
         MMSObject mmso = (MMSObject) message;
-        if(mmso instanceof MMSMessage) {
+        if (mmso instanceof MMSMessage) {
             logger.debug("<--IN-- " + mmso.toString());
             fireMessageReceived(mmso);
         } else {
-            if( (++packetsReceived - packetsreceivedAtLastLog) >= 100) {
+            if ((++packetsReceived - packetsreceivedAtLastLog) >= 100) {
                 packetsreceivedAtLastLog = packetsReceived;
                 logger.debug("{} data packets received", packetsReceived);
             }
@@ -146,13 +157,21 @@ public class MMSClient extends IoHandlerAdapter {
         }
     }
 
+    @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        logger.warn("Exception occured", cause);
-        for (IoHandler handler : additionalIoHandlers) {
-            handler.exceptionCaught(session, cause);
+        if (cause instanceof ConnectException) {
+            logger.error("Connection exception", cause);
+            logger.info("Couldn't connect to server. Now trying MMS over HTTP protocol.");
+            // TODO
+
+        } else {
+            logger.warn("Exception occured", cause);
+            for (IoHandler handler : additionalIoHandlers) {
+                handler.exceptionCaught(session, cause);
+            }
         }
     }
-    
+
     @Override
     public void sessionClosed(IoSession iosession) throws Exception {
         super.sessionClosed(iosession);
@@ -165,39 +184,39 @@ public class MMSClient extends IoHandlerAdapter {
     public void addMessageListener(MMSMessageListener listener) {
         messageListeners.add(listener);
     }
-    
+
     public void removeMessageListener(MMSMessageListener listener) {
         messageListeners.remove(listener);
     }
-    
+
     public void addPacketListener(MMSPacketListener listener) {
         packetListeners.add(listener);
     }
-    
+
     public void removePacketListener(MMSPacketListener listener) {
         packetListeners.remove(listener);
     }
-    
+
     public void addAdditionalIoHandler(IoHandler handler) {
         additionalIoHandlers.add(handler);
     }
-    
+
     public void removeAdditionalIoHandler(IoHandler handler) {
         additionalIoHandlers.remove(handler);
     }
-    
+
     public double getSpeed() {
-        if(session != null) {
-            if( (System.currentTimeMillis() - lastUpdate) > 1000) {
+        if (session != null) {
+            if ((System.currentTimeMillis() - lastUpdate) > 1000) {
                 lastUpdate = System.currentTimeMillis();
                 session.updateThroughput(System.currentTimeMillis(), true);
             }
             return session.getReadBytesThroughput() / 1024;
         }
-        
+
         return 0;
     }
-    
+
     @Override
     public void messageSent(IoSession iosession, Object obj) throws Exception {
         super.messageSent(iosession, obj);
@@ -232,20 +251,22 @@ public class MMSClient extends IoHandlerAdapter {
 
     /**
      * Starts the streaming
-     * @param startPacket the packetNumber from which the streaming should start
+     * 
+     * @param startPacket
+     *            the packetNumber from which the streaming should start
      */
     public void startStreaming(long startPacket) {
         StartPlaying sp = new StartPlaying();
         ReportOpenFile rof = (ReportOpenFile) session.getAttribute(ReportOpenFile.class);
         sp.setOpenFileId(rof.getOpenFileId());
-        
-        /* this confuses me: we use the packet number to seek the start of streaming.
-         * in my opinion we should have to use setLocationId for packet numbers, but it
-         * only works correctly with setAsfOffset ?!? 
-         * maybe the sequence of the values is wrong in the spec */
+
+        /*
+         * this confuses me: we use the packet number to seek the start of streaming. in my opinion we should have to use setLocationId for packet numbers, but
+         * it only works correctly with setAsfOffset ?!? maybe the sequence of the values is wrong in the spec
+         */
         sp.setPosition(Double.MAX_VALUE);
         sp.setLocationId(0xFFFFFFFF);
-        if(startPacket > 0) {
+        if (startPacket > 0) {
             sp.setAsfOffset(startPacket);
         }
         sendRequest(sp);

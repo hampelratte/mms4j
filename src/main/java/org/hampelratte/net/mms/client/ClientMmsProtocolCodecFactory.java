@@ -7,7 +7,7 @@ import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.hampelratte.net.mms.MMSObjectDecoder;
 import org.hampelratte.net.mms.MMSObjectEncoder;
 
-public class ClientProtocolCodecFactory implements ProtocolCodecFactory {
+public class ClientMmsProtocolCodecFactory implements ProtocolCodecFactory {
 
     private ProtocolDecoder decoder = new MMSObjectDecoder();
     private ProtocolEncoder encoder = new MMSObjectEncoder();
