@@ -8,6 +8,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
@@ -352,7 +353,8 @@ public class MMSClient extends IoHandlerAdapter implements IClient {
         // try to request a higher bandwidth for the first 30 seconds, to quickly fill up buffers
         sp.setDwLinkBandwidth(6000000);
         sp.setDwAccelBandwidth(6000000);
-        sp.setDwAccelDuration(30000);
+        long duration = TimeUnit.HOURS.toMillis(12);
+        sp.setDwAccelDuration(duration);
 
         /*
          * this confuses me: we use the packet number to seek the start of streaming. in my opinion we should have to use setLocationId for packet numbers, but
