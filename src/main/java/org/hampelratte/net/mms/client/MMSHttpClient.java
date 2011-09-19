@@ -225,9 +225,15 @@ public class MMSHttpClient extends IoHandlerAdapter implements IClient {
 
     @Override
     public boolean isPauseSupported() {
-        @SuppressWarnings("unchecked")
-        List<String> features = (List<String>) session.getAttribute("features");
-        return features != null && features.contains("seekable");
+        // TODO implement this
+        // if (session != null) {
+        // @SuppressWarnings("unchecked")
+        // List<String> features = (List<String>) session.getAttribute("features");
+        // return features != null && features.contains("seekable");
+        // } else {
+        // return false;
+        // }
+        return false;
     }
 
     @Override
@@ -290,6 +296,7 @@ public class MMSHttpClient extends IoHandlerAdapter implements IClient {
      */
     @Override
     public void startStreaming(long startPacket) {
+        logger.info("Staring streaming from packet {}", startPacket);
         packetsReceived = startPacket;
         Play play = new Play((String) session.getAttribute("client.guid"));
         play.setPath(path.getAbsolutePath());
