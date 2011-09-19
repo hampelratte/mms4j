@@ -6,7 +6,7 @@ public abstract class HttpRequest {
     protected String host;
     protected int port = 80;
     protected String path;
-    protected String userAgent = "NSPlayer/4.1.0.3856"; // alternative user agent like "MMS4J/1.2-SNAPSHOT"; do not work ?!?
+    protected String userAgent = "NSPlayer/12.0.7724.0"; // alternative user agent like "MMS4J/1.2-SNAPSHOT"; do not work ?!?
 
     public String getHost() {
         return host;
