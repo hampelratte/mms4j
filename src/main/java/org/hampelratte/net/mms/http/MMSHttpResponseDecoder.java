@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,9 +61,21 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
                 // parse the header
                 Map<String, List<String>> header = decodeHeader(b);
                 logger.debug("HTTP Header: {}", header);
-                // for (String key : header.keySet()) {
-                // logger.trace("{} = {}", key, header.get(key));
-                // }
+                List<String> pragmas = header.get("Pragma");
+                if (pragmas != null && !pragmas.isEmpty()) {
+                    for (String pragma : pragmas) {
+                        int featuresStart = pragma.indexOf("features");
+                        if (featuresStart > 0) {
+                            int featuresEnd = pragma.indexOf('"', featuresStart + 10);
+                            if (featuresEnd > 0 && featuresEnd > featuresStart) {
+                                String value = pragma.substring(featuresStart + 10, featuresEnd);
+                                String[] features = value.split(",");
+                                List<String> featureList = Arrays.asList(features);
+                                session.setAttribute("features", featureList);
+                            }
+                        }
+                    }
+                }
 
                 // check the http status
                 String status = header.get("STATUS").get(0);

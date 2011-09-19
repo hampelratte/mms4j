@@ -19,6 +19,8 @@ public interface IClient extends IoHandler {
 
     public double getSpeed();
 
+    public boolean isPauseSupported();
+
     public void addMessageListener(MMSMessageListener listener);
 
     public void removeMessageListener(MMSMessageListener listener);

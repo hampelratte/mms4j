@@ -66,6 +66,11 @@ public class Client extends IoHandlerAdapter implements IClient {
         return delegate.getProgress();
     }
 
+    @Override
+    public boolean isPauseSupported() {
+        return delegate.isPauseSupported();
+    }
+
     /**
      * Starts the streaming
      * 

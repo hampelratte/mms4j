@@ -59,11 +59,6 @@ public class MMSHttpClient extends IoHandlerAdapter implements IClient {
     public MMSHttpClient(URI mmsUri) throws URISyntaxException {
         host = mmsUri.getHost();
         path = new File(mmsUri.getPath());
-        // String filepath = path.getParentFile().getPath();
-        // if (filepath.startsWith("/")) {
-        // filepath = filepath.substring(1);
-        // }
-        // final String filename = path.getName();
 
         connector = new NioSocketConnector();
         // connector.getFilterChain().addFirst("logger", new RawInputStreamDumpFilter());
@@ -226,6 +221,13 @@ public class MMSHttpClient extends IoHandlerAdapter implements IClient {
         }
 
         return 0;
+    }
+
+    @Override
+    public boolean isPauseSupported() {
+        @SuppressWarnings("unchecked")
+        List<String> features = (List<String>) session.getAttribute("features");
+        return features != null && features.contains("seekable");
     }
 
     @Override

@@ -307,6 +307,11 @@ public class MMSClient extends IoHandlerAdapter implements IClient {
     }
 
     @Override
+    public boolean isPauseSupported() {
+        return negotiator != null && negotiator.isResumeSupported();
+    }
+
+    @Override
     public void messageSent(IoSession iosession, Object obj) throws Exception {
         super.messageSent(iosession, obj);
         for (IoHandler handler : additionalIoHandlers) {
