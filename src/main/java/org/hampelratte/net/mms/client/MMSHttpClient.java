@@ -145,7 +145,7 @@ public class MMSHttpClient extends IoHandlerAdapter implements IClient {
             logger.trace("<--IN-- {}, Throughput: {} KiB/s", message, getSpeed());
             if ((++packetsReceived - packetsreceivedAtLastLog) >= 100) {
                 packetsreceivedAtLastLog = packetsReceived;
-                logger.debug("{} data packets received. {}%", packetsReceived, getProgress());
+                logger.debug("{} data packets received at {} KiB/s. {}%", new Object[] { packetsReceived, getSpeed(), getProgress() });
             }
             firePacketReceived((MMSObject) message);
         }

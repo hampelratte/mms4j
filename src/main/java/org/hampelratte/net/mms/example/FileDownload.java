@@ -23,8 +23,8 @@ public class FileDownload {
     public FileDownload() throws Exception {
         // final URI uri = new URI("http://a1014.v1252931.c125293.g.vm.akamaistream.net"
         // + "/7/1014/125293/v0001/wm.od.origin.zdf.de.gl-systemhaus.de/none/zdf/11/09/110919_1340_hko_vh.wmv");
-        final URI uri = new URI("mms://a1014.v1252931.c125293.g.vm.akamaistream.net"
-                + "/7/1014/125293/v0001/wm.od.origin.zdf.de.gl-systemhaus.de/none/zdf/11/05/110530_karriere_kuss_37g_vh.wmv");
+        final URI uri = new URI(
+                "mms://a1014.v1252931.c125293.g.vm.akamaistream.net/7/1014/125293/v0001/wm.od.origin.zdf.de.gl-systemhaus.de/none/3sat/11/09/110908_sendung_bauerfeind_vh.wmv");
         // final URI uri = new URI("mms://apasf.apa.at/cms-worldwide"
         // + "/2011-09-18_1100_sd_02_ZIB_____2913225__o__0000823759__s2917803___hr_ORF2HiRes_10595712P_11051213P.wmv");
         // final URL url = new URL("http://a1014.v1252931.c125293.g.vm.akamaistream.net"

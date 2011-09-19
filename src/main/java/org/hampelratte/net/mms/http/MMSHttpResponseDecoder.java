@@ -14,6 +14,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.hampelratte.net.mms.asf.io.ASFInputStream;
+import org.hampelratte.net.mms.asf.objects.ASFFilePropertiesObject;
 import org.hampelratte.net.mms.asf.objects.ASFToplevelHeader;
 import org.hampelratte.net.mms.data.MMSHeaderPacket;
 import org.hampelratte.net.mms.data.MMSMediaPacket;
@@ -39,6 +40,8 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
      */
     private boolean streaming = false;
     private boolean endOfStream = false;
+
+    private long maxPacketLength = 8948;
 
     @Override
     protected boolean doDecode(IoSession session, IoBuffer b, ProtocolDecoderOutput out) throws Exception {
@@ -154,6 +157,10 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
                 ASFToplevelHeader asfTopLevelHeader = (ASFToplevelHeader) asfin.readASFObject();
                 session.setAttribute("asf.top.level.header", asfTopLevelHeader);
                 logger.debug("ASF header {}", asfTopLevelHeader);
+                ASFFilePropertiesObject props = (ASFFilePropertiesObject) asfTopLevelHeader.getNestedHeader(ASFFilePropertiesObject.class);
+                if (props != null) {
+                    maxPacketLength = props.getMaxDataPacketSize();
+                }
 
                 // read in the header part of the ASF Data Object
                 GUID objectID = asfin.readGUID();
@@ -193,7 +200,7 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
                 b.get(buf);
                 MMSMediaPacket packet = new MMSMediaPacket(locationId, afflags, mmsPacketLength);
                 packet.setData(buf);
-                int padding = 8948 - packet.getData().length;
+                int padding = (int) (maxPacketLength - packet.getData().length);
                 if (padding > 0) {
                     packet.addPadding(padding);
                 }
