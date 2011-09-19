@@ -1,5 +1,6 @@
 package org.hampelratte.net.mms.http;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -11,12 +12,16 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+import org.hampelratte.net.mms.asf.io.ASFInputStream;
+import org.hampelratte.net.mms.asf.objects.ASFToplevelHeader;
 import org.hampelratte.net.mms.data.MMSHeaderPacket;
 import org.hampelratte.net.mms.data.MMSMediaPacket;
 import org.hampelratte.net.mms.io.util.StringUtils;
 import org.hampelratte.net.mms.messages.server.ReportEndOfStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import unclealex.mms.GUID;
 
 /**
  * Decoder for all objects received from a server (messages data packets)
@@ -54,9 +59,10 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
 
                 // parse the header
                 Map<String, List<String>> header = decodeHeader(b);
-                for (String key : header.keySet()) {
-                    logger.trace("{} = {}", key, header.get(key));
-                }
+                logger.debug("HTTP Header: {}", header);
+                // for (String key : header.keySet()) {
+                // logger.trace("{} = {}", key, header.get(key));
+                // }
 
                 // check the http status
                 String status = header.get("STATUS").get(0);
@@ -103,12 +109,13 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
 
             // now decode the framed packet $H, $D, etc
             if (fh.getPacketId() == 'H') {
+                ByteOrder order = b.order();
                 b.order(ByteOrder.LITTLE_ENDIAN);
                 long locationId = b.getUnsignedInt();
-                byte playIncarnation = b.get();
+                b.get(); // skip playIncarnation
                 byte afFlags = b.get();
                 int mmsPacketLength = b.getUnsignedShort();
-                b.order(ByteOrder.BIG_ENDIAN);
+                b.order(order);
 
                 // do we have enough bytes to read in the whole mms packet?
                 if (b.remaining() < mmsPacketLength - 8) {
@@ -129,26 +136,23 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
                 out.write(packet);
 
                 // read in the asf top level header
-                // ByteArrayInputStream bin = new ByteArrayInputStream(buf);
-                // ASFInputStream asfin = new ASFInputStream(bin);
-                // ASFObject asfTopLevelHeader = asfin.readASFObject();
-                //
-                // // read in the header part of the ASF Data Object
-                // GUID objectID = asfin.readGUID();
-                // assert "75B22636-668E-11CF-A6D9-00AA0062CE6C".equals(objectID.toString());
-                // long dataSize = asfin.readLELong();
-                // logger.debug("ASF data size: {}", dataSize);
-                // GUID fileID = asfin.readGUID();
-                // logger.debug("File ID: {}", fileID);
-                // long packetCount = asfin.readLELong();
-                // logger.debug("Packet count: {}", packetCount);
-                //
-                // out.write(asfTopLevelHeader);
-            } else if (fh.getPacketId() == 'D') {
-                // logger.debug("$D(ata) Packet:\n{}", StringUtils.toHexString(b, 16));
-                // logger.debug("Framing Header: {}", fh);
-                // logger.debug("Position {}, Limit {}, Remaining {}", new Object[] { b.position(), b.limit(), b.remaining() });
+                ByteArrayInputStream bin = new ByteArrayInputStream(buf);
+                ASFInputStream asfin = new ASFInputStream(bin);
+                ASFToplevelHeader asfTopLevelHeader = (ASFToplevelHeader) asfin.readASFObject();
+                session.setAttribute("asf.top.level.header", asfTopLevelHeader);
+                logger.debug("ASF header {}", asfTopLevelHeader);
 
+                // read in the header part of the ASF Data Object
+                GUID objectID = asfin.readGUID();
+                assert "75B22636-668E-11CF-A6D9-00AA0062CE6C".equals(objectID.toString());
+                long dataSize = asfin.readLELong();
+                logger.debug("ASF data size: {}", dataSize);
+                GUID fileID = asfin.readGUID();
+                logger.debug("File ID: {}", fileID);
+                long packetCount = asfin.readLELong();
+                logger.debug("Packet count: {}", packetCount);
+
+            } else if (fh.getPacketId() == 'D') {
                 // do we have enough bytes to read in the mms header?
                 if (b.remaining() < 8) {
                     logger.trace("Waiting for mms header to arrive {}/8", b.remaining());
@@ -156,15 +160,13 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
                     return false;
                 }
 
+                ByteOrder order = b.order();
                 b.order(ByteOrder.LITTLE_ENDIAN);
                 long locationId = b.getUnsignedInt();
                 byte afflags = b.get(); // AFFLags
-                byte playIncarnation = b.get(); // playIncarnation
-                // logger.debug("play incarnation {}", playIncarnation);
+                b.get(); // skip playIncarnation
                 int mmsPacketLength = b.getUnsignedShort();
-                // logger.debug("frame header size {}", fh.getPacketLength());
-                // logger.debug("mms packet size {}", mmsPacketLength);
-                b.order(ByteOrder.BIG_ENDIAN);
+                b.order(order);
 
                 // do we have enough bytes to read in the whole mms packet?
                 if (b.remaining() < mmsPacketLength - 8) {
@@ -188,7 +190,9 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
                 endOfStream = true;
                 break;
             } else {
-                // TODO consume other packets like $C, $M etc.
+                // TODO implement parsing of $C, $M etc. for now, we just skip the complete framed packet
+                logger.debug("${}-Packet:\n{}", (char) fh.getPacketId(), StringUtils.toHexString(b));
+                b.skip(fh.getPacketLength());
             }
         }
 
@@ -211,9 +215,10 @@ public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
         fh.setPacketId(b.get() & 0xFF);
 
         // read the packet size
+        ByteOrder order = b.order();
         b.order(ByteOrder.LITTLE_ENDIAN);
         fh.setPacketLength(b.getUnsignedShort());
-        b.order(ByteOrder.BIG_ENDIAN);
+        b.order(order);
 
         /*
          * TODO Check, if the reason field is existent. We have to check, if the next 4 bytes are a valid HRESULT. This would imply, that the reason field is
