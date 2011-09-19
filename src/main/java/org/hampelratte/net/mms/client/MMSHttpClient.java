@@ -2,7 +2,6 @@ package org.hampelratte.net.mms.client;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,18 +21,19 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.hampelratte.net.mms.MMSObject;
+import org.hampelratte.net.mms.asf.objects.ASFFilePropertiesObject;
+import org.hampelratte.net.mms.asf.objects.ASFToplevelHeader;
 import org.hampelratte.net.mms.client.listeners.MMSMessageListener;
 import org.hampelratte.net.mms.client.listeners.MMSPacketListener;
 import org.hampelratte.net.mms.data.MMSPacket;
 import org.hampelratte.net.mms.http.request.HttpRequest;
 import org.hampelratte.net.mms.http.request.Play;
 import org.hampelratte.net.mms.messages.MMSMessage;
-import org.hampelratte.net.mms.messages.client.StartPlaying;
-import org.hampelratte.net.mms.messages.server.ReportOpenFile;
+import org.hampelratte.net.mms.messages.server.ReportStreamSwitch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MMSHttpClient extends IoHandlerAdapter {
+public class MMSHttpClient extends IoHandlerAdapter implements IClient {
     private static transient Logger logger = LoggerFactory.getLogger(MMSHttpClient.class);
 
     /** Connect timeout in millisecods */
@@ -52,13 +52,13 @@ public class MMSHttpClient extends IoHandlerAdapter {
 
     private long lastUpdate = 0;
 
+    private long packetCount = -1;
     private long packetsReceived = 0;
     private long packetsreceivedAtLastLog = 0;
 
-    public MMSHttpClient(String mmsUri) throws URISyntaxException {
-        URI uri = new URI(mmsUri);
-        host = uri.getHost();
-        path = new File(uri.getPath());
+    public MMSHttpClient(URI mmsUri) throws URISyntaxException {
+        host = mmsUri.getHost();
+        path = new File(mmsUri.getPath());
         // String filepath = path.getParentFile().getPath();
         // if (filepath.startsWith("/")) {
         // filepath = filepath.substring(1);
@@ -71,36 +71,9 @@ public class MMSHttpClient extends IoHandlerAdapter {
         connector.setHandler(this);
     }
 
-    public void connect() throws Exception {
-        openConnection(new IoFutureListener<ConnectFuture>() {
-            @Override
-            public void operationComplete(ConnectFuture cf) {
-                if (cf.isConnected()) {
-                    // set throughput calculation interval
-                    session.getConfig().setThroughputCalculationInterval(1);
-
-                    // set the first sequence number
-                    session.setAttribute("mms.sequence", 0);
-
-                    // get stream info
-                    // Describe desc = new Describe((String) session.getAttribute("client.guid"));
-                    // desc.setPath(path.getAbsolutePath());
-                    // desc.setHost(host);
-                    // sendRequest(desc);
-
-                    Play play = new Play((String) session.getAttribute("client.guid"));
-                    play.setPath(path.getAbsolutePath());
-                    play.setHost(host);
-                    sendRequest(play);
-                } else {
-                    try {
-                        exceptionCaught(session, cf.getException());
-                    } catch (Exception e) {
-                        logger.error("Couldn't propagate exception", e);
-                    }
-                }
-            }
-        });
+    @Override
+    public void connect(IoFutureListener<ConnectFuture> listener) throws Exception {
+        openConnection(listener);
     }
 
     private void openConnection(IoFutureListener<ConnectFuture> ioFutureListener) throws Exception {
@@ -111,7 +84,21 @@ public class MMSHttpClient extends IoHandlerAdapter {
             try {
                 session = connectFuture.getSession();
                 session.setAttribute("client.guid", UUID.randomUUID().toString());
-                connectFuture.addListener(ioFutureListener);
+                session.getConfig().setThroughputCalculationInterval(1);
+                if (ioFutureListener != null) {
+                    connectFuture.addListener(ioFutureListener);
+                }
+                connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
+                    @Override
+                    public void operationComplete(ConnectFuture cf) {
+                        if (cf.isConnected()) {
+                            logger.debug("Connection successful, firing rss");
+                            fireMessageReceived(new ReportStreamSwitch());
+                        } else {
+                            logger.error("Couldn't connect to server", cf.getException());
+                        }
+                    }
+                });
             } catch (RuntimeException e) {
                 if (e.getCause() != null) {
                     exceptionCaught(session, e.getCause());
@@ -124,13 +111,16 @@ public class MMSHttpClient extends IoHandlerAdapter {
         }
     }
 
+    @Override
     public void disconnect(IoFutureListener<IoFuture> listener) {
         // sendRequest(new CancelProtocol());
 
         // cancel protocol doesn't work -> kill the connection
         if (session != null) {
             CloseFuture future = session.close(true);
-            future.addListener(listener);
+            if (listener != null) {
+                future.addListener(listener);
+            }
         }
 
         if (connector != null) {
@@ -153,72 +143,14 @@ public class MMSHttpClient extends IoHandlerAdapter {
             handler.messageReceived(session, message);
         }
 
-        logger.debug("<--IN-- {}", message);
-        // if (message instanceof ASFObject) {
-        // // close the connection and reinitialize a new one
-        // logger.debug("Closing connection");
-        // disconnect(new IoFutureListener<IoFuture>() {
-        // @Override
-        // public void operationComplete(IoFuture future) {
-        // logger.debug("Connection closed");
-        // // closing the connection finished, now open a new one
-        // // first create a new connector
-        // connector = new NioSocketConnector();
-        // // connector.getFilterChain().addFirst("logger", new RawInputStreamDumpFilter());
-        // connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ClientHttpProtocolCodecFactory()));
-        // connector.setHandler(MMSHttpClient.this);
-        // logger.debug("New connector created");
-        //
-        // // now open the connection
-        // try {
-        // logger.debug("Open new connection");
-        // openConnection(new IoFutureListener<ConnectFuture>() {
-        // @Override
-        // public void operationComplete(ConnectFuture cf) {
-        // if (cf.isConnected()) {
-        // logger.debug("Connection opened");
-        // // set throughput calculation interval
-        // session.getConfig().setThroughputCalculationInterval(1);
-        //
-        // // set the first sequence number
-        // session.setAttribute("mms.sequence", 0);
-        //
-        // // start streaming
-        // Play play = new Play((String) session.getAttribute("client.guid"));
-        // play.setPath(path.getAbsolutePath());
-        // play.setHost(host);
-        // sendRequest(play);
-        // } else {
-        // logger.debug("Failed to open connection");
-        // try {
-        // exceptionCaught(session, cf.getException());
-        // } catch (Exception e) {
-        // logger.error("Couldn't propagate exception", e);
-        // e.printStackTrace();
-        // }
-        // }
-        // }
-        // });
-        // } catch (Exception e) {
-        // try {
-        // exceptionCaught(session, e);
-        // } catch (Exception e1) {
-        // logger.error("Couldn't propagate exception", e);
-        // e1.printStackTrace();
-        // }
-        // }
-        // }
-        // });
-        // }
-
         if (message instanceof MMSMessage) {
-            logger.debug("Message received");
+            logger.debug("<--IN-- {}", message);
             fireMessageReceived((MMSObject) message);
         } else if (message instanceof MMSPacket) {
-            logger.debug("Packet received");
+            logger.trace("<--IN-- {}, Throughput: {} KiB/s", message, getSpeed());
             if ((++packetsReceived - packetsreceivedAtLastLog) >= 100) {
                 packetsreceivedAtLastLog = packetsReceived;
-                logger.debug("{} data packets received", packetsReceived);
+                logger.debug("{} data packets received. {}%", packetsReceived, getProgress());
             }
             firePacketReceived((MMSObject) message);
         }
@@ -238,16 +170,9 @@ public class MMSHttpClient extends IoHandlerAdapter {
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        if (cause instanceof ConnectException) {
-            logger.error("Couldn't connect to server. Now trying HTTP rollover");
-            logger.trace("Connection exception", cause);
-            this.port = 80;
-            connect();
-        } else {
-            logger.warn("Exception occured", cause);
-            for (IoHandler handler : additionalIoHandlers) {
-                handler.exceptionCaught(session, cause);
-            }
+        logger.warn("Exception occured", cause);
+        for (IoHandler handler : additionalIoHandlers) {
+            handler.exceptionCaught(session, cause);
         }
     }
 
@@ -260,30 +185,37 @@ public class MMSHttpClient extends IoHandlerAdapter {
         }
     }
 
+    @Override
     public void addMessageListener(MMSMessageListener listener) {
         messageListeners.add(listener);
     }
 
+    @Override
     public void removeMessageListener(MMSMessageListener listener) {
         messageListeners.remove(listener);
     }
 
+    @Override
     public void addPacketListener(MMSPacketListener listener) {
         packetListeners.add(listener);
     }
 
+    @Override
     public void removePacketListener(MMSPacketListener listener) {
         packetListeners.remove(listener);
     }
 
+    @Override
     public void addAdditionalIoHandler(IoHandler handler) {
         additionalIoHandlers.add(handler);
     }
 
+    @Override
     public void removeAdditionalIoHandler(IoHandler handler) {
         additionalIoHandlers.remove(handler);
     }
 
+    @Override
     public double getSpeed() {
         if (session != null) {
             if ((System.currentTimeMillis() - lastUpdate) > 1000) {
@@ -294,6 +226,26 @@ public class MMSHttpClient extends IoHandlerAdapter {
         }
 
         return 0;
+    }
+
+    @Override
+    public int getProgress() {
+        // try to determine the packet count
+        if (packetCount == -1) {
+            ASFToplevelHeader header = (ASFToplevelHeader) session.getAttribute("asf.top.level.header");
+            if (header != null) {
+                ASFFilePropertiesObject props = (ASFFilePropertiesObject) header.getNestedHeader(ASFFilePropertiesObject.class);
+                if (props != null) {
+                    packetCount = props.getDataPacketCount();
+                }
+            }
+        }
+
+        if (packetCount == -1) {
+            return -1;
+        } else {
+            return (int) (((double) packetsReceived / (double) packetCount) * 100);
+        }
     }
 
     @Override
@@ -334,20 +286,13 @@ public class MMSHttpClient extends IoHandlerAdapter {
      * @param startPacket
      *            the packetNumber from which the streaming should start
      */
+    @Override
     public void startStreaming(long startPacket) {
-        StartPlaying sp = new StartPlaying();
-        ReportOpenFile rof = (ReportOpenFile) session.getAttribute(ReportOpenFile.class);
-        sp.setOpenFileId(rof.getOpenFileId());
-
-        /*
-         * this confuses me: we use the packet number to seek the start of streaming. in my opinion we should have to use setLocationId for packet numbers, but
-         * it only works correctly with setAsfOffset ?!? maybe the sequence of the values is wrong in the spec
-         */
-        sp.setPosition(Double.MAX_VALUE);
-        sp.setLocationId(0xFFFFFFFF);
-        if (startPacket > 0) {
-            sp.setAsfOffset(startPacket);
-        }
-        // sendRequest(sp);
+        packetsReceived = startPacket;
+        Play play = new Play((String) session.getAttribute("client.guid"));
+        play.setPath(path.getAbsolutePath());
+        play.setHost(host);
+        play.setPacketNum(startPacket);
+        sendRequest(play);
     }
 }
