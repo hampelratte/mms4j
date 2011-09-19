@@ -1,8 +1,6 @@
 package org.hampelratte.net.mms.asf.objects;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import unclealex.mms.GUID;
 
@@ -69,14 +67,5 @@ public abstract class ASFObject {
         b[16] = (byte) (getSize() & 0xFF);
         System.arraycopy(getData(), 0, b, 24, getData().length);
         return b;
-    }
-
-    private void addLength(byte[] b) {
-        ByteBuffer buffer = ByteBuffer.allocate(8);
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        buffer.putLong(getSize());
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        buffer.flip();
-        buffer.get(b, 16, 8);
     }
 }
