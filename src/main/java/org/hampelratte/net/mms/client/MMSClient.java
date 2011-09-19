@@ -1,10 +1,13 @@
 package org.hampelratte.net.mms.client;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
@@ -18,18 +21,28 @@ import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.hampelratte.net.mms.MMSObject;
+import org.hampelratte.net.mms.asf.io.ASFInputStream;
+import org.hampelratte.net.mms.asf.objects.ASFFilePropertiesObject;
+import org.hampelratte.net.mms.asf.objects.ASFObject;
+import org.hampelratte.net.mms.asf.objects.ASFToplevelHeader;
 import org.hampelratte.net.mms.client.listeners.MMSMessageListener;
 import org.hampelratte.net.mms.client.listeners.MMSPacketListener;
+import org.hampelratte.net.mms.data.MMSHeaderPacket;
 import org.hampelratte.net.mms.data.MMSPacket;
 import org.hampelratte.net.mms.messages.MMSMessage;
 import org.hampelratte.net.mms.messages.client.CancelProtocol;
+import org.hampelratte.net.mms.messages.client.Connect;
+import org.hampelratte.net.mms.messages.client.ConnectFunnel;
 import org.hampelratte.net.mms.messages.client.MMSRequest;
+import org.hampelratte.net.mms.messages.client.OpenFile;
+import org.hampelratte.net.mms.messages.client.ReadBlock;
 import org.hampelratte.net.mms.messages.client.StartPlaying;
+import org.hampelratte.net.mms.messages.client.StreamSwitch;
 import org.hampelratte.net.mms.messages.server.ReportOpenFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MMSClient extends IoHandlerAdapter {
+public class MMSClient extends IoHandlerAdapter implements IClient {
     private static transient Logger logger = LoggerFactory.getLogger(MMSClient.class);
 
     /** Connect timeout in millisecods */
@@ -40,21 +53,23 @@ public class MMSClient extends IoHandlerAdapter {
 
     private List<IoHandler> additionalIoHandlers = new ArrayList<IoHandler>();
 
+    private URI mmsUri;
     private String host;
-    private int port;
+    private int port = 1755;
     private SocketConnector connector;
     private IoSession session;
     private MMSNegotiator negotiator;
 
     private long lastUpdate = 0;
 
+    private long packetCount = -1;
     private long packetsReceived = 0;
     private long packetsreceivedAtLastLog = 0;
 
-    public MMSClient(String host, int port, MMSNegotiator negotiator) {
-        this.host = host;
-        this.port = port;
-        this.negotiator = negotiator;
+    public MMSClient(URI mmsUri) {
+        this.mmsUri = mmsUri;
+        createNegotiater();
+
         connector = new NioSocketConnector();
         // connector.getFilterChain().addFirst("logger", new RawInputStreamDumpFilter());
         connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ClientMmsProtocolCodecFactory()));
@@ -63,13 +78,62 @@ public class MMSClient extends IoHandlerAdapter {
         this.addPacketListener(negotiator);
     }
 
-    public void connect() throws Exception {
+    private void createNegotiater() {
+        host = mmsUri.getHost();
+        File path = new File(mmsUri.getPath());
+        String filepath = path.getParentFile().getPath();
+        if (filepath.startsWith("/")) {
+            filepath = filepath.substring(1);
+        }
+        final String filename = path.getName();
+
+        negotiator = new MMSNegotiator();
+        negotiator.setClient(this);
+
+        // configure the negotiator
+        // connect
+        Connect connect = new Connect();
+        connect.setPlayerInfo("NSPlayer/12.0.7724.0");
+        connect.setGuid(UUID.randomUUID().toString());
+        connect.setHost(host);
+        negotiator.setConnect(connect);
+        // connect funnel
+        ConnectFunnel cf = new ConnectFunnel();
+        cf.setIpAddress("192.168.0.1");
+        cf.setProtocol("TCP");
+        cf.setPort("1037");
+        negotiator.setConnectFunnel(cf);
+        // open file
+        OpenFile of = new OpenFile();
+        String remoteFile = filepath + '/' + filename;
+        logger.info("Remote file is {}", remoteFile);
+        of.setFileName(remoteFile);
+        negotiator.setOpenFile(of);
+        // read block
+        ReadBlock rb = new ReadBlock();
+        negotiator.setReadBlock(rb);
+        // stream switch
+        StreamSwitch ss = new StreamSwitch();
+        ss.addStreamSwitchEntry(ss.new StreamSwitchEntry(0xFFFF, 1, 0));
+        ss.addStreamSwitchEntry(ss.new StreamSwitchEntry(0xFFFF, 2, 0));
+        negotiator.setStreamSwitch(ss);
+    }
+
+    public MMSNegotiator getNegotiator() {
+        return negotiator;
+    }
+
+    @Override
+    public void connect(IoFutureListener<ConnectFuture> listener) throws Exception {
         ConnectFuture connectFuture = connector.connect(new InetSocketAddress(host, port));
 
         if (connectFuture != null) {
             try {
                 connectFuture.awaitUninterruptibly(CONNECT_TIMEOUT);
                 session = connectFuture.getSession();
+                if (listener != null) {
+                    connectFuture.addListener(listener);
+                }
                 connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
                     @Override
                     public void operationComplete(ConnectFuture cf) {
@@ -103,13 +167,16 @@ public class MMSClient extends IoHandlerAdapter {
         }
     }
 
+    @Override
     public void disconnect(IoFutureListener<IoFuture> listener) {
         sendRequest(new CancelProtocol());
 
         // cancel protocol doesn't work -> kill the connection
         if (session != null) {
             CloseFuture future = session.close(true);
-            future.addListener(listener);
+            if (listener != null) {
+                future.addListener(listener);
+            }
         }
 
         if (connector != null) {
@@ -146,6 +213,28 @@ public class MMSClient extends IoHandlerAdapter {
     }
 
     private void firePacketReceived(MMSObject mmso) {
+        if (mmso instanceof MMSHeaderPacket) {
+            MMSHeaderPacket hp = (MMSHeaderPacket) mmso;
+            try {
+                ByteArrayInputStream bin = new ByteArrayInputStream(hp.getData());
+                ASFInputStream asfin = new ASFInputStream(bin);
+                ASFObject asfo = asfin.readASFObject();
+                if (asfo instanceof ASFToplevelHeader) {
+                    ASFToplevelHeader asfHeader = (ASFToplevelHeader) asfo;
+                    session.setAttribute("asf.top.level.header", asfHeader);
+                    logger.debug("ASF header: {}", asfHeader);
+                    ASFFilePropertiesObject fileprops = (ASFFilePropertiesObject) asfHeader.getNestedHeader(ASFFilePropertiesObject.class);
+                    if (fileprops != null) {
+                        packetCount = fileprops.getDataPacketCount();
+                    } else {
+                        packetCount = -1;
+                    }
+                }
+            } catch (Exception e) {
+                logger.warn("Ignoring unknown ASF header object", e);
+            }
+        }
+
         for (MMSPacketListener listener : packetListeners) {
             listener.packetReceived((MMSPacket) mmso);
         }
@@ -159,16 +248,8 @@ public class MMSClient extends IoHandlerAdapter {
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        if (cause instanceof ConnectException) {
-            logger.error("Connection exception", cause);
-            logger.info("Couldn't connect to server. Now trying MMS over HTTP protocol.");
-            // TODO
-
-        } else {
-            logger.warn("Exception occured", cause);
-            for (IoHandler handler : additionalIoHandlers) {
-                handler.exceptionCaught(session, cause);
-            }
+        for (IoHandler handler : additionalIoHandlers) {
+            handler.exceptionCaught(session, cause);
         }
     }
 
@@ -181,30 +262,37 @@ public class MMSClient extends IoHandlerAdapter {
         }
     }
 
+    @Override
     public void addMessageListener(MMSMessageListener listener) {
         messageListeners.add(listener);
     }
 
+    @Override
     public void removeMessageListener(MMSMessageListener listener) {
         messageListeners.remove(listener);
     }
 
+    @Override
     public void addPacketListener(MMSPacketListener listener) {
         packetListeners.add(listener);
     }
 
+    @Override
     public void removePacketListener(MMSPacketListener listener) {
         packetListeners.remove(listener);
     }
 
+    @Override
     public void addAdditionalIoHandler(IoHandler handler) {
         additionalIoHandlers.add(handler);
     }
 
+    @Override
     public void removeAdditionalIoHandler(IoHandler handler) {
         additionalIoHandlers.remove(handler);
     }
 
+    @Override
     public double getSpeed() {
         if (session != null) {
             if ((System.currentTimeMillis() - lastUpdate) > 1000) {
@@ -255,10 +343,16 @@ public class MMSClient extends IoHandlerAdapter {
      * @param startPacket
      *            the packetNumber from which the streaming should start
      */
+    @Override
     public void startStreaming(long startPacket) {
         StartPlaying sp = new StartPlaying();
         ReportOpenFile rof = (ReportOpenFile) session.getAttribute(ReportOpenFile.class);
         sp.setOpenFileId(rof.getOpenFileId());
+
+        // try to request a higher bandwidth for the first 30 seconds, to quickly fill up buffers
+        sp.setDwLinkBandwidth(6000000);
+        sp.setDwAccelBandwidth(6000000);
+        sp.setDwAccelDuration(30000);
 
         /*
          * this confuses me: we use the packet number to seek the start of streaming. in my opinion we should have to use setLocationId for packet numbers, but
@@ -270,5 +364,26 @@ public class MMSClient extends IoHandlerAdapter {
             sp.setAsfOffset(startPacket);
         }
         sendRequest(sp);
+    }
+
+    @Override
+    // TODO introduce abstract client class to reduce code redundancies like in MMSClient.getProgress() and MMSHttpClient.getProgress()
+    public int getProgress() {
+        // try to determine the packet count
+        if (packetCount == -1) {
+            ASFToplevelHeader header = (ASFToplevelHeader) session.getAttribute("asf.top.level.header");
+            if (header != null) {
+                ASFFilePropertiesObject props = (ASFFilePropertiesObject) header.getNestedHeader(ASFFilePropertiesObject.class);
+                if (props != null) {
+                    packetCount = props.getDataPacketCount();
+                }
+            }
+        }
+
+        if (packetCount == -1) {
+            return -1;
+        } else {
+            return (int) (((double) packetsReceived / (double) packetCount) * 100);
+        }
     }
 }
