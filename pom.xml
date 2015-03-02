@@ -15,9 +15,9 @@
     </parent>
 
     <scm>
-        <connection>scm:git:git@github.com/hampelratte/vch-download-http.git</connection>
-        <developerConnection>scm:git:git@github.com:hampelratte/vch-download-http.git</developerConnection>
-        <url>https://github.com/hampelratte/vch-download-http.git</url>
+        <connection>scm:git:git@github.com/hampelratte/mms4j.git</connection>
+        <developerConnection>scm:git:git@github.com:hampelratte/mms4j.git</developerConnection>
+        <url>https://github.com/hampelratte/mms4j.git</url>
     </scm>
 
     <properties>
