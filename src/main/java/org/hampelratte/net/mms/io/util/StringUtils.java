@@ -60,8 +60,8 @@ public class StringUtils {
     }
 
     /**
-     * Converts one byte to its hex representation with leading zeros. E.g. 255 -> FF
-     * 
+     * Converts one byte to its hex representation with leading zeros. E.g. 255 -&gt; FF
+     *
      * @param b
      * @return the hex representation of the <code>b</code>
      */
@@ -77,7 +77,7 @@ public class StringUtils {
 
     /**
      * Creates a hexdump with a maximum length of {@link StringUtils#LOG_BYTE_DUMP_SIZE} bytes
-     * 
+     *
      * @param data
      * @return hexdump as String
      */
