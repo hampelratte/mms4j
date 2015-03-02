@@ -1,17 +1,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>mms4j</artifactId>
+    <packaging>jar</packaging>
+    <version>2.0.0-SNAPSHOT</version>
+    <name>MMS4J</name>
+    <description>An implementation of the &quot;Microsoft Media Server&quot; protocol</description>
+    <url>http://developer.berlios.de/projects/vch</url>
+
     <parent>
         <artifactId>parent</artifactId>
         <groupId>org.hampelratte</groupId>
         <version>9</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>mms4j</artifactId>
-    <packaging>jar</packaging>
-    <version>2.0-SNAPSHOT</version>
-    <name>MMS4J</name>
-    <description>An implementation of the &quot;Microsoft Media Server&quot; protocol</description>
-    <url>http://developer.berlios.de/projects/vch</url>
+
+    <scm>
+        <connection>scm:git:git@github.com/hampelratte/vch-download-http.git</connection>
+        <developerConnection>scm:git:git@github.com:hampelratte/vch-download-http.git</developerConnection>
+        <url>https://github.com/hampelratte/vch-download-http.git</url>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
