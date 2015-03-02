@@ -9,20 +9,20 @@ import org.hampelratte.net.mms.messages.server.ReportReadBlock;
 /**
  * Decoder for {@link ReportReadBlock} objects
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class ReportReadBlockDecoder extends MMSResponseDecoder {
 
     @Override
-    public MMSResponse doDecode(IoSession session, IoBuffer b) throws Exception {
+    public MMSResponse doDecode(IoSession session, IoBuffer b) throws RemoteException {
         ReportReadBlock rrb = new ReportReadBlock();
         rrb.setHr(b.getInt());
-        if(rrb.getHr() != 0) {
+        if (rrb.getHr() != 0) {
             throw new RemoteException(rrb.getHr());
         }
         rrb.setPlayIncarnation(b.getInt());
         rrb.setPlaySequence(b.getInt());
-        
+
         return rrb;
     }
 

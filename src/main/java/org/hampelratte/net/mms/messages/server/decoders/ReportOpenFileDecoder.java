@@ -9,15 +9,15 @@ import org.hampelratte.net.mms.messages.server.ReportOpenFile;
 /**
  * Decoder for {@link ReportOpenFile} objects
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class ReportOpenFileDecoder extends MMSResponseDecoder {
 
     @Override
-    public MMSResponse doDecode(IoSession session, IoBuffer b) throws Exception {
+    public MMSResponse doDecode(IoSession session, IoBuffer b) throws RemoteException {
         ReportOpenFile rof = new ReportOpenFile();
         rof.setHr(b.getInt());
-        if(rof.getHr() != 0) {
+        if (rof.getHr() != 0) {
             throw new RemoteException(rof.getHr());
         }
         rof.setPlayIncarnation(b.getInt());
@@ -27,22 +27,22 @@ public class ReportOpenFileDecoder extends MMSResponseDecoder {
         rof.setFileAttributes(b.getInt());
         rof.setFileDuration(b.getDouble());
         rof.setFileBlocks(b.getUnsignedInt());
-        
+
         // skip 16 reserverd bytes
         b.skip(16);
-        
+
         rof.setFilePacketSize(b.getUnsignedInt());
         rof.setFilePacketCount(b.getLong()); // this is an unsigned long, which
-                                            // could result in a negative value
-                                            // due to two's complement. for
-                                            // simplicity, we read a signed long
-                                            // and risk a negative value
+                                             // could result in a negative value
+                                             // due to two's complement. for
+                                             // simplicity, we read a signed long
+                                             // and risk a negative value
         rof.setFileBitrate(b.getUnsignedInt());
         rof.setFileHeaderSize(b.getUnsignedInt());
-        
+
         // skip 36 reserved bytes
         b.skip(36);
-        
+
         return rof;
     }
 

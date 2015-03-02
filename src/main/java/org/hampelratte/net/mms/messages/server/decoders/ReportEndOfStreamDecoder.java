@@ -9,15 +9,15 @@ import org.hampelratte.net.mms.messages.server.ReportEndOfStream;
 /**
  * Decoder for {@link ReportEndOfStream} objects
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class ReportEndOfStreamDecoder extends MMSResponseDecoder {
 
     @Override
-    public MMSResponse doDecode(IoSession session, IoBuffer b) throws Exception {
+    public MMSResponse doDecode(IoSession session, IoBuffer b) throws RemoteException {
         ReportEndOfStream eos = new ReportEndOfStream();
         eos.setHr(b.getInt());
-        if(eos.getHr() != 0) {
+        if (eos.getHr() != 0) {
             throw new RemoteException(eos.getHr());
         }
         eos.setPlayIncarnation(b.getInt());

@@ -1,12 +1,9 @@
 package org.hampelratte.net.mms.messages.server;
 
 /**
- * The Ping message is sent by the server to verify that a
- * particular client is still active.
- * 
- * @author <a
- *         href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios
- *         .de</a>
+ * The Ping message is sent by the server to verify that a particular client is still active.
+ *
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class Ping extends MMSResponse {
 
@@ -15,8 +12,7 @@ public class Ping extends MMSResponse {
     private int dwParam2 = 0;
 
     /**
-     * @return dwParam1 (4 bytes): A 32-bit field. SHOULD be set to 0x00000000
-     *         and MUST be ignored by the receiver.
+     * @return dwParam1 (4 bytes): A 32-bit field. SHOULD be set to 0x00000000 and MUST be ignored by the receiver.
      */
     public int getDwParam1() {
         return dwParam1;
@@ -24,16 +20,14 @@ public class Ping extends MMSResponse {
 
     /**
      * @param dwParam1
-     *            (4 bytes): A 32-bit field. SHOULD be set to 0x00000000 and
-     *            MUST be ignored by the receiver.
+     *            (4 bytes): A 32-bit field. SHOULD be set to 0x00000000 and MUST be ignored by the receiver.
      */
     public void setDwParam1(int dwParam1) {
         this.dwParam1 = dwParam1;
     }
 
     /**
-     * @return dwParam2 (4 bytes): A 32-bit field. SHOULD be set to 0x00000000
-     *         and MUST be ignored by the receiver.
+     * @return dwParam2 (4 bytes): A 32-bit field. SHOULD be set to 0x00000000 and MUST be ignored by the receiver.
      */
     public int getDwParam2() {
         return dwParam2;
@@ -41,8 +35,7 @@ public class Ping extends MMSResponse {
 
     /**
      * @param dwParam2
-     *            (4 bytes): A 32-bit field. SHOULD be set to 0x00000000 and
-     *            MUST be ignored by the receiver.
+     *            (4 bytes): A 32-bit field. SHOULD be set to 0x00000000 and MUST be ignored by the receiver.
      */
     public void setDwParam2(int dwParam2) {
         this.dwParam2 = dwParam2;

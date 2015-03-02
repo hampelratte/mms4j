@@ -4,7 +4,7 @@ package org.hampelratte.net.mms.messages.client;
  * The StartPlaying message is sent by the client to request that the server
  * start streaming the content for playback at the normal (real-time) rate.
  * 
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class StartPlaying extends MMSRequest {
 

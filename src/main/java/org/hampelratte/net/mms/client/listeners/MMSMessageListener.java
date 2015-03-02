@@ -5,7 +5,7 @@ import org.hampelratte.net.mms.messages.MMSMessage;
 /**
  * Listener for arriving MMS messages
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public interface MMSMessageListener {
     /**

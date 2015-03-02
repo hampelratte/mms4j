@@ -4,7 +4,7 @@ package org.hampelratte.net.mms.messages.client;
  * The OpenFile message is sent by the client to specify the name
  * of the resource on the server that is to be streamed.
  * 
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class OpenFile extends MMSRequest {
 

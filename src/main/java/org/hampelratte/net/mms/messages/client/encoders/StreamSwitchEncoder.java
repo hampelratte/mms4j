@@ -12,7 +12,7 @@ import org.hampelratte.net.mms.messages.client.StreamSwitch.StreamSwitchEntry;
 /**
  * Encoder for {@link StreamSwitch} objects
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class StreamSwitchEncoder extends MMSRequestEncoder {
 

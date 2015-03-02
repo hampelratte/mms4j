@@ -8,7 +8,7 @@ import org.hampelratte.net.mms.messages.client.OpenFile;
  * The ReportOpenFile message is sent by the server in response
  * to a {@link OpenFile} (section 2.2.4.21) message by the client.
  * 
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class ReportOpenFile extends MMSResponse {
 

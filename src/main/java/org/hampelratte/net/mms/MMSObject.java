@@ -3,7 +3,7 @@ package org.hampelratte.net.mms;
 /**
  * Parent class for all sent objects (messages and data packets) 
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public abstract class MMSObject {
     /**

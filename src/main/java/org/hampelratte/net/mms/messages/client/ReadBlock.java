@@ -5,7 +5,7 @@ package org.hampelratte.net.mms.messages.client;
  * file header. The ASF file header contains all of the codec initialization
  * parameters needed by the client to decompress the multimedia data.
  * 
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class ReadBlock extends MMSRequest {
 

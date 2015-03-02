@@ -6,7 +6,7 @@ import org.hampelratte.net.mms.MMSObject;
  * Parent class for all MMS messages described in paragraph 2.2.4
  * of the specification 
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public abstract class MMSMessage extends MMSObject {
     /**

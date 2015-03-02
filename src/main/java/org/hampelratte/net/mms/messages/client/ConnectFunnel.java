@@ -5,7 +5,7 @@ package org.hampelratte.net.mms.messages.client;
  * that Data (section 2.2.2) packets be streamed by the server using a specific
  * protocol and to a specific port.
  * 
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class ConnectFunnel extends MMSRequest {
 

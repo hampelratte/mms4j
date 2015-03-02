@@ -3,12 +3,9 @@ package org.hampelratte.net.mms.messages.server;
 import org.hampelratte.net.mms.io.util.StringUtils;
 
 /**
- * This is a dummy message for messages coming from the server, which are not
- * yet implemented, or which we don't know
- * 
- * @author <a
- *         href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios
- *         .de</a>
+ * This is a dummy message for messages coming from the server, which are not yet implemented, or which we don't know
+ *
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class NotImplementedServerMessage extends MMSResponse {
 

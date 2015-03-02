@@ -5,14 +5,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class LittleEndianEnabledOutputStream extends DataOutputStream {
-    
+
     public LittleEndianEnabledOutputStream(OutputStream out) {
         super(out);
     }
 
     /**
      * Writes a 16-bit short to the output stream in little-endian byte order.
-     * @param s the short to write to the stream
+     *
+     * @param s
+     *            the short to write to the stream
+     * @throws IOException
+     *             See {@link DataOutputStream#write(int)}
      */
     public void writeLEShort(int s) throws IOException {
         out.write((s >>> 0) & 0xff);
@@ -21,7 +25,11 @@ public class LittleEndianEnabledOutputStream extends DataOutputStream {
 
     /**
      * Writes a 32-bit int to the output stream in little-endian byte order.
-     * @param i the integer to write to the stream
+     *
+     * @param i
+     *            the integer to write to the stream
+     * @throws IOException
+     *             See {@link DataOutputStream#write(int)}
      */
     public void writeLEInt(long i) throws IOException {
         out.write((int) ((i >>> 0) & 0xff));
@@ -29,10 +37,14 @@ public class LittleEndianEnabledOutputStream extends DataOutputStream {
         out.write((int) ((i >>> 16) & 0xff));
         out.write((int) ((i >>> 24) & 0xff));
     }
-    
+
     /**
      * Writes a 64-bit long to the output stream in little-endian byte order.
-     * @param i the long to write to the stream
+     *
+     * @param i
+     *            the long to write to the stream
+     * @throws IOException
+     *             See {@link DataOutputStream#write(int)}
      */
     public void writeLELong(long i) throws IOException {
         out.write((int) ((i >>> 0) & 0xff));

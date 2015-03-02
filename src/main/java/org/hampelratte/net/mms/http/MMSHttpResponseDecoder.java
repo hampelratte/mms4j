@@ -28,7 +28,7 @@ import unclealex.mms.GUID;
 /**
  * Decoder for all objects received from a server (messages data packets)
  * 
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class MMSHttpResponseDecoder extends CumulativeProtocolDecoder {
 

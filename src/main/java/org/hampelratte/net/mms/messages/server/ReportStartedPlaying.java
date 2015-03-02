@@ -1,12 +1,9 @@
 package org.hampelratte.net.mms.messages.server;
 
 /**
- * The ReportStartedPlaying message is sent by the server in
- * response to a LinkViewerToMacStartPlaying (section 2.2.4.25) message.
- * 
- * @author <a
- *         href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios
- *         .de</a>
+ * The ReportStartedPlaying message is sent by the server in response to a LinkViewerToMacStartPlaying (section 2.2.4.25) message.
+ *
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class ReportStartedPlaying extends MMSResponse {
 
@@ -17,9 +14,8 @@ public class ReportStartedPlaying extends MMSResponse {
     private int tigerFileId;
 
     /**
-     * @return hr (4 bytes): HRESULT. The result of processing the client
-     *         LinkViewerToMacStartPlaying (section 2.2.4.25) message. For
-     *         HRESULT codes, see [MS-ERREF].
+     * @return hr (4 bytes): HRESULT. The result of processing the client LinkViewerToMacStartPlaying (section 2.2.4.25) message. For HRESULT codes, see
+     *         [MS-ERREF].
      */
     public int getHr() {
         return hr;
@@ -27,19 +23,16 @@ public class ReportStartedPlaying extends MMSResponse {
 
     /**
      * @param hr
-     *            (4 bytes): HRESULT. The result of processing the client
-     *            LinkViewerToMacStartPlaying (section 2.2.4.25) message. For
-     *            HRESULT codes, see [MS-ERREF].
+     *            (4 bytes): HRESULT. The result of processing the client LinkViewerToMacStartPlaying (section 2.2.4.25) message. For HRESULT codes, see
+     *            [MS-ERREF].
      */
     public void setHr(int hr) {
         this.hr = hr;
     }
 
     /**
-     * @return playIncarnation (4 bytes): A 32-bit field. It MUST be the value
-     *         of the playIncarnation field in the LinkViewerToMacStartPlaying
-     *         (section 2.2.4.25) message that this
-     *         ReportStartedPlaying message is a response to.
+     * @return playIncarnation (4 bytes): A 32-bit field. It MUST be the value of the playIncarnation field in the LinkViewerToMacStartPlaying (section
+     *         2.2.4.25) message that this ReportStartedPlaying message is a response to.
      */
     public int getPlayIncarnation() {
         return playIncarnation;
@@ -47,21 +40,16 @@ public class ReportStartedPlaying extends MMSResponse {
 
     /**
      * @param playIncarnation
-     *            (4 bytes): A 32-bit field. It MUST be the value of the
-     *            playIncarnation field in the LinkViewerToMacStartPlaying
-     *            (section 2.2.4.25) message that this
-     *            ReportStartedPlaying message is a response to.
+     *            (4 bytes): A 32-bit field. It MUST be the value of the playIncarnation field in the LinkViewerToMacStartPlaying (section 2.2.4.25) message
+     *            that this ReportStartedPlaying message is a response to.
      */
     public void setPlayIncarnation(int playIncarnation) {
         this.playIncarnation = playIncarnation;
     }
 
     /**
-     * @return tigerFileId (4 bytes): A 32-bit field. This field SHOULD <11> be
-     *         set to the value of the openFileId field in the
-     *         ReportOpenFile (section 2.2.4.7) message sent
-     *         previously by the server. The field MUST be ignored by the
-     *         receiver.
+     * @return tigerFileId (4 bytes): A 32-bit field. This field SHOULD &lt;11&gt; be set to the value of the openFileId field in the ReportOpenFile (section
+     *         2.2.4.7) message sent previously by the server. The field MUST be ignored by the receiver.
      */
     public int getTigerFileId() {
         return tigerFileId;
@@ -69,11 +57,8 @@ public class ReportStartedPlaying extends MMSResponse {
 
     /**
      * @param tigerFileId
-     *            (4 bytes): A 32-bit field. This field SHOULD <11> be set to
-     *            the value of the openFileId field in the
-     *            ReportOpenFile (section 2.2.4.7) message sent
-     *            previously by the server. The field MUST be ignored by the
-     *            receiver.
+     *            (4 bytes): A 32-bit field. This field SHOULD &lt;11&gt; be set to the value of the openFileId field in the ReportOpenFile (section 2.2.4.7)
+     *            message sent previously by the server. The field MUST be ignored by the receiver.
      */
     public void setTigerFileId(int tigerFileId) {
         this.tigerFileId = tigerFileId;

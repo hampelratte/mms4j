@@ -3,13 +3,10 @@ package org.hampelratte.net.mms.messages.server;
 import org.hampelratte.net.mms.io.util.HRESULT;
 
 /**
- * The ReportDisconnectedFunnel message is sent by the server in
- * response to a ConnectFunnel (section 2.2.4.18) message from
- * the client when there is an error processing the request.
- * 
- * @author <a
- *         href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios
- *         .de</a>
+ * The ReportDisconnectedFunnel message is sent by the server in response to a ConnectFunnel (section 2.2.4.18) message from the client when there is an error
+ * processing the request.
+ *
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class ReportDisconnectedFunnel extends MMSResponse {
 
@@ -18,9 +15,7 @@ public class ReportDisconnectedFunnel extends MMSResponse {
     private int playIncarnation;
 
     /**
-     * @return hr (4 bytes): Result of processing the
-     *         ConnectFunnel (section 2.2.4.18) message. For
-     *         HRESULT codes, see [MS-ERREF].
+     * @return hr (4 bytes): Result of processing the ConnectFunnel (section 2.2.4.18) message. For HRESULT codes, see [MS-ERREF].
      */
     public int getHr() {
         return hr;
@@ -28,17 +23,14 @@ public class ReportDisconnectedFunnel extends MMSResponse {
 
     /**
      * @param hr
-     *            (4 bytes): Result of processing the
-     *            ConnectFunnel (section 2.2.4.18) message. For
-     *            HRESULT codes, see [MS-ERREF].
+     *            (4 bytes): Result of processing the ConnectFunnel (section 2.2.4.18) message. For HRESULT codes, see [MS-ERREF].
      */
     public void setHr(int hr) {
         this.hr = hr;
     }
 
     /**
-     * @return playIncarnation (4 bytes): A 32-bit field. SHOULD be set to
-     *         0x00000000. It MUST be ignored by the receiver.
+     * @return playIncarnation (4 bytes): A 32-bit field. SHOULD be set to 0x00000000. It MUST be ignored by the receiver.
      */
     public int getPlayIncarnation() {
         return playIncarnation;
@@ -46,8 +38,7 @@ public class ReportDisconnectedFunnel extends MMSResponse {
 
     /**
      * @param playIncarnation
-     *            (4 bytes): A 32-bit field. SHOULD be set to 0x00000000. It
-     *            MUST be ignored by the receiver.
+     *            (4 bytes): A 32-bit field. SHOULD be set to 0x00000000. It MUST be ignored by the receiver.
      */
     public void setPlayIncarnation(int playIncarnation) {
         this.playIncarnation = playIncarnation;

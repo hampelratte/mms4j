@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * Listens for mms header and media packets and writes them to the given file.
  * If the dumper receives an EndOfMedia command, the file will be closed automatically
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class MMSFileDumper implements MMSPacketListener, MMSMessageListener {
 

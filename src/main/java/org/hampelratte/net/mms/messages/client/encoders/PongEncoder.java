@@ -10,7 +10,7 @@ import org.hampelratte.net.mms.messages.client.Pong;
 /**
  * Encoder for {@link Pong} objects
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class PongEncoder extends MMSRequestEncoder {
 

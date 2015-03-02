@@ -63,6 +63,7 @@ public class StringUtils {
      * Converts one byte to its hex representation with leading zeros. E.g. 255 -&gt; FF
      *
      * @param b
+     *            a single byte
      * @return the hex representation of the <code>b</code>
      */
     public static String toHexString(int b) {
@@ -79,6 +80,7 @@ public class StringUtils {
      * Creates a hexdump with a maximum length of {@link StringUtils#LOG_BYTE_DUMP_SIZE} bytes
      *
      * @param data
+     *            an array of bytes
      * @return hexdump as String
      */
     public static String toHeadHexString(byte[] data) {

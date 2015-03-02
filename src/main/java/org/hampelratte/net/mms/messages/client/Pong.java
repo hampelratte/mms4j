@@ -5,7 +5,7 @@ package org.hampelratte.net.mms.messages.client;
  * that it is still active. It sends this message in response to a
  * Ping (section 2.2.4.1) message from the server.
  * 
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class Pong extends MMSRequest {
 

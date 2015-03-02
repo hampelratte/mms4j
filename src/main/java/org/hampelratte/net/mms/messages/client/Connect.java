@@ -5,7 +5,7 @@ package org.hampelratte.net.mms.messages.client;
  * For simplicity this class doesn't provide all fields of the subscriberName,
  * but only fields of the client-token and the host-info
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class Connect extends MMSRequest {
     /** Packet-pair bandwidth estimation not requested. */

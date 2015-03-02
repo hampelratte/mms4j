@@ -8,18 +8,18 @@ import org.hampelratte.net.mms.messages.server.NotImplementedServerMessage;
 /**
  * Decoder for {@link NotImplementedServerMessage} objects
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class NotImplementedServerMessageDecoder extends MMSResponseDecoder {
 
     @Override
-    public MMSResponse doDecode(IoSession session, IoBuffer b) throws Exception {
+    public MMSResponse doDecode(IoSession session, IoBuffer b) {
         NotImplementedServerMessage nisc = new NotImplementedServerMessage();
-        
-        byte[] data = new byte[(int) (header.getMessageLength()-16)];
+
+        byte[] data = new byte[(int) (header.getMessageLength() - 16)];
         b.get(data);
         nisc.setMessage(data);
-        
+
         return nisc;
     }
 }

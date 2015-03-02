@@ -9,15 +9,15 @@ import org.hampelratte.net.mms.messages.server.ReportDisconnectedFunnel;
 /**
  * Decoder for {@link ReportDisconnectedFunnel} objects
  *
- * @author <a href="mailto:hampelratte@users.berlios.de">hampelratte@users.berlios.de</a>
+ * @author <a href="mailto:henrik.niehaus@gmx.de">henrik.niehaus@gmx.de</a>
  */
 public class ReportDisconnectedFunnelDecoder extends MMSResponseDecoder {
 
     @Override
-    public MMSResponse doDecode(IoSession session, IoBuffer b) throws Exception {
+    public MMSResponse doDecode(IoSession session, IoBuffer b) throws RemoteException {
         ReportDisconnectedFunnel rdf = new ReportDisconnectedFunnel();
         rdf.setHr(b.getInt());
-        if(rdf.getHr() != 0) {
+        if (rdf.getHr() != 0) {
             throw new RemoteException(rdf.getHr());
         }
         rdf.setPlayIncarnation(b.getInt());
